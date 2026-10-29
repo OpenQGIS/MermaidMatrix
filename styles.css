@@ -1,0 +1,43 @@
+/* MermaidMatrix Plugin Styles */
+
+.mermaid-matrix-view-container {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.mermaid-matrix-view-container * {
+  box-sizing: border-box;
+}
+
+.matrix-status-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
+  line-height: 1.4;
+}
+
+.matrix-status-todo {
+  color: var(--text-muted);
+  background-color: var(--background-secondary);
+}
+
+.matrix-status-in-progress {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.12);
+}
+
+.matrix-status-done {
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.12);
+}
+
+.matrix-status-blocked {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.12);
+}

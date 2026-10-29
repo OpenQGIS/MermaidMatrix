@@ -1,0 +1,10 @@
+{
+  "id": "mermaid-matrix",
+  "name": "MermaidMatrix",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Visual project dashboard & interactive swimlane Gantt chart with native Mermaid sync for Obsidian.",
+  "author": "OpenQGIS",
+  "authorUrl": "https://github.com/OpenQGIS",
+  "isDesktopOnly": false
+}
