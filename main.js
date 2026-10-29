@@ -30,7 +30,7 @@ __export(main_exports, {
   default: () => MermaidMatrixPlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian2 = require("obsidian");
+var import_obsidian3 = require("obsidian");
 
 // src/ui/MatrixView.ts
 var import_obsidian = require("obsidian");
@@ -375,11 +375,12 @@ function transition_out(block, local, detach2, callback) {
 function ensure_array_like(array_like_or_iterator) {
   return (array_like_or_iterator == null ? void 0 : array_like_or_iterator.length) !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
 }
-function destroy_block(block, lookup) {
-  block.d(1);
-  lookup.delete(block.key);
+function outro_and_destroy_block(block, lookup) {
+  transition_out(block, 1, 1, () => {
+    lookup.delete(block.key);
+  });
 }
-function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, lookup, node, destroy, create_each_block3, next, get_context) {
+function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, lookup, node, destroy, create_each_block4, next, get_context) {
   let o = old_blocks.length;
   let n = list.length;
   let i = o;
@@ -395,7 +396,7 @@ function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, looku
     const key = get_key(child_ctx);
     let block = lookup.get(key);
     if (!block) {
-      block = create_each_block3(key, child_ctx);
+      block = create_each_block4(key, child_ctx);
       block.c();
     } else if (dynamic) {
       updates.push(() => block.p(child_ctx, dirty));
@@ -514,7 +515,7 @@ function make_dirty(component, i) {
   }
   component.$$.dirty[i / 31 | 0] |= 1 << i % 31;
 }
-function init(component, options, instance5, create_fragment5, not_equal, props, append_styles2 = null, dirty = [-1]) {
+function init(component, options, instance6, create_fragment6, not_equal, props, append_styles2 = null, dirty = [-1]) {
   const parent_component = current_component;
   set_current_component(component);
   const $$ = component.$$ = {
@@ -540,7 +541,7 @@ function init(component, options, instance5, create_fragment5, not_equal, props,
   };
   append_styles2 && append_styles2($$.root);
   let ready = false;
-  $$.ctx = instance5 ? instance5(component, options.props || {}, (i, ret, ...rest) => {
+  $$.ctx = instance6 ? instance6(component, options.props || {}, (i, ret, ...rest) => {
     const value = rest.length ? rest[0] : ret;
     if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
       if (!$$.skip_bound && $$.bound[i]) $$.bound[i](value);
@@ -551,7 +552,7 @@ function init(component, options, instance5, create_fragment5, not_equal, props,
   $$.update();
   ready = true;
   run_all($$.before_update);
-  $$.fragment = create_fragment5 ? create_fragment5($$.ctx) : false;
+  $$.fragment = create_fragment6 ? create_fragment6($$.ctx) : false;
   if (options.target) {
     if (options.hydrate) {
       start_hydrating();
@@ -877,18 +878,659 @@ function projectsToMermaidGantt(projects, title = "Project Matrix Dashboard") {
   return lines.join("\n");
 }
 
-// src/ui/components/VisualTable.svelte
+// src/ui/components/DateRangePicker.svelte
 function add_css(target) {
-  append_styles(target, "svelte-w4nlsx", ".matrix-table-container.svelte-w4nlsx.svelte-w4nlsx{width:100%;height:100%;overflow-y:auto;font-size:13px;color:var(--text-normal);background-color:var(--background-primary)}.matrix-empty-state.svelte-w4nlsx.svelte-w4nlsx{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}.empty-icon.svelte-w4nlsx.svelte-w4nlsx{font-size:36px;margin-bottom:12px}.empty-title.svelte-w4nlsx.svelte-w4nlsx{font-size:15px;font-weight:600;margin-bottom:6px}.empty-hint.svelte-w4nlsx.svelte-w4nlsx{color:var(--text-muted);font-size:13px}.empty-hint.svelte-w4nlsx code.svelte-w4nlsx{background:var(--background-secondary);padding:2px 6px;border-radius:4px}.matrix-table.svelte-w4nlsx.svelte-w4nlsx{display:flex;flex-direction:column;width:100%;border-collapse:collapse}.table-header.svelte-w4nlsx.svelte-w4nlsx{display:flex;align-items:center;padding:8px 14px;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);background:var(--background-secondary);border-bottom:1px solid var(--background-modifier-border);position:sticky;top:0;z-index:10}.col-title.svelte-w4nlsx.svelte-w4nlsx{flex:2;min-width:180px}.col-status.svelte-w4nlsx.svelte-w4nlsx{width:130px}.col-dates.svelte-w4nlsx.svelte-w4nlsx{width:220px}.col-progress.svelte-w4nlsx.svelte-w4nlsx{width:120px;display:flex;align-items:center;gap:8px}.col-actions.svelte-w4nlsx.svelte-w4nlsx{width:50px;text-align:center}.project-group.svelte-w4nlsx.svelte-w4nlsx{border-bottom:1px solid var(--background-modifier-border)}.project-row.svelte-w4nlsx.svelte-w4nlsx{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--background-secondary-alt);cursor:pointer;user-select:none;transition:background 0.15s ease}.project-row.svelte-w4nlsx.svelte-w4nlsx:hover{background:var(--background-modifier-hover)}.project-info.svelte-w4nlsx.svelte-w4nlsx{display:flex;align-items:center;gap:8px}.collapse-icon.svelte-w4nlsx.svelte-w4nlsx{font-size:10px;color:var(--text-muted);width:12px}.project-name.svelte-w4nlsx.svelte-w4nlsx{font-weight:600;font-size:13.5px;color:var(--text-normal)}.task-count-badge.svelte-w4nlsx.svelte-w4nlsx{font-size:11px;background:var(--background-modifier-border);color:var(--text-muted);padding:2px 7px;border-radius:10px}.project-meta.svelte-w4nlsx.svelte-w4nlsx{display:flex;align-items:center;gap:10px}.progress-bar-wrap.svelte-w4nlsx.svelte-w4nlsx{width:90px;height:6px;background:var(--background-modifier-border);border-radius:3px;overflow:hidden}.progress-bar-fill.svelte-w4nlsx.svelte-w4nlsx{height:100%;background:var(--interactive-accent);border-radius:3px;transition:width 0.3s ease}.progress-text.svelte-w4nlsx.svelte-w4nlsx{font-size:11px;font-weight:600;color:var(--text-muted);width:35px;text-align:right}.task-row.svelte-w4nlsx.svelte-w4nlsx{display:flex;align-items:center;padding:7px 14px 7px 28px;border-top:1px solid var(--background-modifier-border);transition:background 0.1s ease}.task-row.svelte-w4nlsx.svelte-w4nlsx:hover{background:var(--background-modifier-hover)}.task-title-col.svelte-w4nlsx.svelte-w4nlsx{display:flex;align-items:center;gap:8px}.task-bullet.svelte-w4nlsx.svelte-w4nlsx{color:var(--text-muted)}.task-title.svelte-w4nlsx.svelte-w4nlsx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status-select.svelte-w4nlsx.svelte-w4nlsx{padding:3px 8px;border-radius:12px;font-size:11.5px;font-weight:500;border:1px solid transparent;cursor:pointer;outline:none;background:var(--background-primary)}.select-todo.svelte-w4nlsx.svelte-w4nlsx{color:var(--text-muted);border-color:var(--background-modifier-border)}.select-in-progress.svelte-w4nlsx.svelte-w4nlsx{color:#3b82f6;background:rgba(59, 130, 246, 0.12);border-color:rgba(59, 130, 246, 0.3)}.select-done.svelte-w4nlsx.svelte-w4nlsx{color:#10b981;background:rgba(16, 185, 129, 0.12);border-color:rgba(16, 185, 129, 0.3)}.select-blocked.svelte-w4nlsx.svelte-w4nlsx{color:#ef4444;background:rgba(239, 68, 68, 0.12);border-color:rgba(239, 68, 68, 0.3)}.date-input.svelte-w4nlsx.svelte-w4nlsx{background:var(--background-primary);border:1px solid var(--background-modifier-border);color:var(--text-normal);font-size:11.5px;padding:2px 4px;border-radius:4px;outline:none}.date-sep.svelte-w4nlsx.svelte-w4nlsx{color:var(--text-muted);margin:0 4px;font-size:12px}.task-progress-wrap.svelte-w4nlsx.svelte-w4nlsx{width:60px;height:5px;background:var(--background-modifier-border);border-radius:3px;overflow:hidden}.task-progress-bar.svelte-w4nlsx.svelte-w4nlsx{height:100%;background:#10b981;border-radius:3px}.task-progress-num.svelte-w4nlsx.svelte-w4nlsx{font-size:11px;color:var(--text-muted);width:30px}.action-btn.svelte-w4nlsx.svelte-w4nlsx,.jump-note-btn.svelte-w4nlsx.svelte-w4nlsx{background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:3px 6px;border-radius:4px;transition:all 0.15s ease}.action-btn.svelte-w4nlsx.svelte-w4nlsx:hover,.jump-note-btn.svelte-w4nlsx.svelte-w4nlsx:hover{color:var(--text-normal);background:var(--background-modifier-hover)}");
+  append_styles(target, "svelte-156cvf", ".matrix-datepicker-card.svelte-156cvf.svelte-156cvf{background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:8px;padding:14px;box-shadow:0 8px 24px rgba(0, 0, 0, 0.22);width:320px;user-select:none;font-size:13px;color:var(--text-normal)}.presets-bar.svelte-156cvf.svelte-156cvf{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--background-modifier-border);margin-bottom:10px}.preset-pill.svelte-156cvf.svelte-156cvf{background:var(--background-secondary);border:1px solid var(--background-modifier-border);color:var(--text-muted);font-size:11px;padding:2px 8px;border-radius:12px;cursor:pointer;transition:all 0.15s ease}.preset-pill.svelte-156cvf.svelte-156cvf:hover{background:var(--interactive-accent);color:var(--text-on-accent);border-color:var(--interactive-accent)}.calendar-header.svelte-156cvf.svelte-156cvf{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.month-title.svelte-156cvf.svelte-156cvf{font-weight:600;font-size:13.5px}.nav-arrow.svelte-156cvf.svelte-156cvf{background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-muted);padding:2px 8px;border-radius:4px}.nav-arrow.svelte-156cvf.svelte-156cvf:hover{background:var(--background-modifier-hover);color:var(--text-normal)}.weekdays-grid.svelte-156cvf.svelte-156cvf{display:grid;grid-template-columns:repeat(7, 1fr);text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:4px}.weekdays-grid.svelte-156cvf .weekend.svelte-156cvf{color:var(--text-accent)}.days-grid.svelte-156cvf.svelte-156cvf{display:grid;grid-template-columns:repeat(7, 1fr);gap:2px}.day-cell.svelte-156cvf.svelte-156cvf{height:32px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:12px;color:var(--text-normal);display:flex;align-items:center;justify-content:center;transition:all 0.1s ease}.day-cell.svelte-156cvf.svelte-156cvf:hover{background:var(--background-modifier-hover)}.day-cell.other-month.svelte-156cvf.svelte-156cvf{color:var(--text-faint)}.day-cell.is-today.svelte-156cvf.svelte-156cvf{font-weight:bold;color:var(--interactive-accent)}.day-cell.in-range.svelte-156cvf.svelte-156cvf{background:rgba(59, 130, 246, 0.15);border-radius:0}.day-cell.is-start.svelte-156cvf.svelte-156cvf{background:var(--interactive-accent) !important;color:var(--text-on-accent) !important;border-top-left-radius:4px;border-bottom-left-radius:4px}.day-cell.is-end.svelte-156cvf.svelte-156cvf{background:var(--interactive-accent) !important;color:var(--text-on-accent) !important;border-top-right-radius:4px;border-bottom-right-radius:4px}.datepicker-footer.svelte-156cvf.svelte-156cvf{margin-top:12px;padding-top:10px;border-top:1px solid var(--background-modifier-border);display:flex;flex-direction:column;gap:8px}.range-display.svelte-156cvf.svelte-156cvf{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px}.date-badge.svelte-156cvf.svelte-156cvf{background:var(--background-secondary);padding:2px 6px;border-radius:4px;font-family:var(--font-monospace);font-weight:500}.sep.svelte-156cvf.svelte-156cvf{color:var(--text-muted)}.footer-buttons.svelte-156cvf.svelte-156cvf{display:flex;justify-content:flex-end;gap:8px}.cancel-btn.svelte-156cvf.svelte-156cvf{background:none;border:1px solid var(--background-modifier-border);padding:4px 10px;border-radius:4px;color:var(--text-muted);cursor:pointer;font-size:12px}.cancel-btn.svelte-156cvf.svelte-156cvf:hover{background:var(--background-modifier-hover);color:var(--text-normal)}.confirm-btn.svelte-156cvf.svelte-156cvf{background:var(--interactive-accent);color:var(--text-on-accent);border:none;padding:4px 12px;border-radius:4px;font-weight:500;cursor:pointer;font-size:12px}.confirm-btn.svelte-156cvf.svelte-156cvf:hover{filter:brightness(1.1)}");
 }
 function get_each_context(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[18] = list[i];
+  child_ctx[25] = list[i];
+  return child_ctx;
+}
+function create_each_block(ctx) {
+  let button;
+  let t0_value = (
+    /*day*/
+    ctx[25].dayNum + ""
+  );
+  let t0;
+  let t1;
+  let mounted;
+  let dispose;
+  function click_handler_4() {
+    return (
+      /*click_handler_4*/
+      ctx[20](
+        /*day*/
+        ctx[25]
+      )
+    );
+  }
+  return {
+    c() {
+      button = element("button");
+      t0 = text(t0_value);
+      t1 = space();
+      attr(button, "type", "button");
+      attr(button, "class", "day-cell svelte-156cvf");
+      toggle_class(button, "other-month", !/*day*/
+      ctx[25].isCurrentMonth);
+      toggle_class(
+        button,
+        "is-today",
+        /*day*/
+        ctx[25].isToday
+      );
+      toggle_class(
+        button,
+        "is-start",
+        /*day*/
+        ctx[25].isStart
+      );
+      toggle_class(
+        button,
+        "is-end",
+        /*day*/
+        ctx[25].isEnd
+      );
+      toggle_class(
+        button,
+        "in-range",
+        /*day*/
+        ctx[25].isInRange
+      );
+    },
+    m(target, anchor) {
+      insert(target, button, anchor);
+      append(button, t0);
+      append(button, t1);
+      if (!mounted) {
+        dispose = listen(button, "click", click_handler_4);
+        mounted = true;
+      }
+    },
+    p(new_ctx, dirty) {
+      ctx = new_ctx;
+      if (dirty & /*calendarDays*/
+      64 && t0_value !== (t0_value = /*day*/
+      ctx[25].dayNum + "")) set_data(t0, t0_value);
+      if (dirty & /*calendarDays*/
+      64) {
+        toggle_class(button, "other-month", !/*day*/
+        ctx[25].isCurrentMonth);
+      }
+      if (dirty & /*calendarDays*/
+      64) {
+        toggle_class(
+          button,
+          "is-today",
+          /*day*/
+          ctx[25].isToday
+        );
+      }
+      if (dirty & /*calendarDays*/
+      64) {
+        toggle_class(
+          button,
+          "is-start",
+          /*day*/
+          ctx[25].isStart
+        );
+      }
+      if (dirty & /*calendarDays*/
+      64) {
+        toggle_class(
+          button,
+          "is-end",
+          /*day*/
+          ctx[25].isEnd
+        );
+      }
+      if (dirty & /*calendarDays*/
+      64) {
+        toggle_class(
+          button,
+          "in-range",
+          /*day*/
+          ctx[25].isInRange
+        );
+      }
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(button);
+      }
+      mounted = false;
+      dispose();
+    }
+  };
+}
+function create_fragment(ctx) {
+  let div7;
+  let div0;
+  let button0;
+  let t1;
+  let button1;
+  let t3;
+  let button2;
+  let t5;
+  let button3;
+  let t7;
+  let button4;
+  let t9;
+  let button5;
+  let t11;
+  let div1;
+  let button6;
+  let t13;
+  let span0;
+  let t14;
+  let t15;
+  let t16_value = (
+    /*month*/
+    ctx[2] + 1 + ""
+  );
+  let t16;
+  let t17;
+  let t18;
+  let button7;
+  let t20;
+  let div2;
+  let t28;
+  let div3;
+  let t29;
+  let div6;
+  let div4;
+  let span8;
+  let t30;
+  let t31;
+  let span9;
+  let t33;
+  let span10;
+  let t34;
+  let t35;
+  let div5;
+  let button8;
+  let t37;
+  let button9;
+  let mounted;
+  let dispose;
+  let each_value = ensure_array_like(
+    /*calendarDays*/
+    ctx[6]
+  );
+  let each_blocks = [];
+  for (let i = 0; i < each_value.length; i += 1) {
+    each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+  }
+  return {
+    c() {
+      div7 = element("div");
+      div0 = element("div");
+      button0 = element("button");
+      button0.textContent = "\u4ECA\u5929 (1\u5929)";
+      t1 = space();
+      button1 = element("button");
+      button1.textContent = "\u672A\u67653\u5929";
+      t3 = space();
+      button2 = element("button");
+      button2.textContent = "\u672C\u5468";
+      t5 = space();
+      button3 = element("button");
+      button3.textContent = "\u4E0B\u5468";
+      t7 = space();
+      button4 = element("button");
+      button4.textContent = "\u672A\u67652\u5468";
+      t9 = space();
+      button5 = element("button");
+      button5.textContent = "\u672A\u67651\u4E2A\u6708";
+      t11 = space();
+      div1 = element("div");
+      button6 = element("button");
+      button6.textContent = "\u2039";
+      t13 = space();
+      span0 = element("span");
+      t14 = text(
+        /*year*/
+        ctx[3]
+      );
+      t15 = text(" \u5E74 ");
+      t16 = text(t16_value);
+      t17 = text(" \u6708");
+      t18 = space();
+      button7 = element("button");
+      button7.textContent = "\u203A";
+      t20 = space();
+      div2 = element("div");
+      div2.innerHTML = `<span>\u4E00</span><span>\u4E8C</span><span>\u4E09</span><span>\u56DB</span><span>\u4E94</span><span class="weekend svelte-156cvf">\u516D</span><span class="weekend svelte-156cvf">\u65E5</span>`;
+      t28 = space();
+      div3 = element("div");
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        each_blocks[i].c();
+      }
+      t29 = space();
+      div6 = element("div");
+      div4 = element("div");
+      span8 = element("span");
+      t30 = text(
+        /*tempStart*/
+        ctx[4]
+      );
+      t31 = space();
+      span9 = element("span");
+      span9.textContent = "\u81F3";
+      t33 = space();
+      span10 = element("span");
+      t34 = text(
+        /*tempEnd*/
+        ctx[5]
+      );
+      t35 = space();
+      div5 = element("div");
+      button8 = element("button");
+      button8.textContent = "\u53D6\u6D88";
+      t37 = space();
+      button9 = element("button");
+      button9.textContent = "\u786E\u5B9A\u4FDD\u5B58";
+      attr(button0, "type", "button");
+      attr(button0, "class", "preset-pill svelte-156cvf");
+      attr(button1, "type", "button");
+      attr(button1, "class", "preset-pill svelte-156cvf");
+      attr(button2, "type", "button");
+      attr(button2, "class", "preset-pill svelte-156cvf");
+      attr(button3, "type", "button");
+      attr(button3, "class", "preset-pill svelte-156cvf");
+      attr(button4, "type", "button");
+      attr(button4, "class", "preset-pill svelte-156cvf");
+      attr(button5, "type", "button");
+      attr(button5, "class", "preset-pill svelte-156cvf");
+      attr(div0, "class", "presets-bar svelte-156cvf");
+      attr(button6, "type", "button");
+      attr(button6, "class", "nav-arrow svelte-156cvf");
+      attr(span0, "class", "month-title svelte-156cvf");
+      attr(button7, "type", "button");
+      attr(button7, "class", "nav-arrow svelte-156cvf");
+      attr(div1, "class", "calendar-header svelte-156cvf");
+      attr(div2, "class", "weekdays-grid svelte-156cvf");
+      attr(div3, "class", "days-grid svelte-156cvf");
+      attr(span8, "class", "date-badge svelte-156cvf");
+      attr(span9, "class", "sep svelte-156cvf");
+      attr(span10, "class", "date-badge svelte-156cvf");
+      attr(div4, "class", "range-display svelte-156cvf");
+      attr(button8, "type", "button");
+      attr(button8, "class", "cancel-btn svelte-156cvf");
+      attr(button9, "type", "button");
+      attr(button9, "class", "confirm-btn svelte-156cvf");
+      attr(div5, "class", "footer-buttons svelte-156cvf");
+      attr(div6, "class", "datepicker-footer svelte-156cvf");
+      attr(div7, "class", "matrix-datepicker-card svelte-156cvf");
+    },
+    m(target, anchor) {
+      insert(target, div7, anchor);
+      append(div7, div0);
+      append(div0, button0);
+      append(div0, t1);
+      append(div0, button1);
+      append(div0, t3);
+      append(div0, button2);
+      append(div0, t5);
+      append(div0, button3);
+      append(div0, t7);
+      append(div0, button4);
+      append(div0, t9);
+      append(div0, button5);
+      append(div7, t11);
+      append(div7, div1);
+      append(div1, button6);
+      append(div1, t13);
+      append(div1, span0);
+      append(span0, t14);
+      append(span0, t15);
+      append(span0, t16);
+      append(span0, t17);
+      append(div1, t18);
+      append(div1, button7);
+      append(div7, t20);
+      append(div7, div2);
+      append(div7, t28);
+      append(div7, div3);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        if (each_blocks[i]) {
+          each_blocks[i].m(div3, null);
+        }
+      }
+      append(div7, t29);
+      append(div7, div6);
+      append(div6, div4);
+      append(div4, span8);
+      append(span8, t30);
+      append(div4, t31);
+      append(div4, span9);
+      append(div4, t33);
+      append(div4, span10);
+      append(span10, t34);
+      append(div6, t35);
+      append(div6, div5);
+      append(div5, button8);
+      append(div5, t37);
+      append(div5, button9);
+      if (!mounted) {
+        dispose = [
+          listen(
+            button0,
+            "click",
+            /*click_handler*/
+            ctx[16]
+          ),
+          listen(
+            button1,
+            "click",
+            /*click_handler_1*/
+            ctx[17]
+          ),
+          listen(
+            button2,
+            "click",
+            /*applyThisWeek*/
+            ctx[11]
+          ),
+          listen(
+            button3,
+            "click",
+            /*applyNextWeek*/
+            ctx[12]
+          ),
+          listen(
+            button4,
+            "click",
+            /*click_handler_2*/
+            ctx[18]
+          ),
+          listen(
+            button5,
+            "click",
+            /*click_handler_3*/
+            ctx[19]
+          ),
+          listen(
+            button6,
+            "click",
+            /*prevMonth*/
+            ctx[7]
+          ),
+          listen(
+            button7,
+            "click",
+            /*nextMonth*/
+            ctx[8]
+          ),
+          listen(button8, "click", function() {
+            if (is_function(
+              /*onCancel*/
+              ctx[1]
+            )) ctx[1].apply(this, arguments);
+          }),
+          listen(
+            button9,
+            "click",
+            /*click_handler_5*/
+            ctx[21]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(new_ctx, [dirty]) {
+      ctx = new_ctx;
+      if (dirty & /*year*/
+      8) set_data(
+        t14,
+        /*year*/
+        ctx[3]
+      );
+      if (dirty & /*month*/
+      4 && t16_value !== (t16_value = /*month*/
+      ctx[2] + 1 + "")) set_data(t16, t16_value);
+      if (dirty & /*calendarDays, handleDayClick*/
+      576) {
+        each_value = ensure_array_like(
+          /*calendarDays*/
+          ctx[6]
+        );
+        let i;
+        for (i = 0; i < each_value.length; i += 1) {
+          const child_ctx = get_each_context(ctx, each_value, i);
+          if (each_blocks[i]) {
+            each_blocks[i].p(child_ctx, dirty);
+          } else {
+            each_blocks[i] = create_each_block(child_ctx);
+            each_blocks[i].c();
+            each_blocks[i].m(div3, null);
+          }
+        }
+        for (; i < each_blocks.length; i += 1) {
+          each_blocks[i].d(1);
+        }
+        each_blocks.length = each_value.length;
+      }
+      if (dirty & /*tempStart*/
+      16) set_data(
+        t30,
+        /*tempStart*/
+        ctx[4]
+      );
+      if (dirty & /*tempEnd*/
+      32) set_data(
+        t34,
+        /*tempEnd*/
+        ctx[5]
+      );
+    },
+    i: noop,
+    o: noop,
+    d(detaching) {
+      if (detaching) {
+        detach(div7);
+      }
+      destroy_each(each_blocks, detaching);
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
+function instance($$self, $$props, $$invalidate) {
+  let year;
+  let month;
+  let { startDate = "" } = $$props;
+  let { endDate = "" } = $$props;
+  let { onConfirm = () => {
+  } } = $$props;
+  let { onCancel = () => {
+  } } = $$props;
+  const todayStr = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  let tempStart = startDate || todayStr;
+  let tempEnd = endDate || tempStart;
+  let currentMonth = new Date(tempStart || todayStr);
+  if (isNaN(currentMonth.getTime())) currentMonth = /* @__PURE__ */ new Date();
+  currentMonth.setDate(1);
+  let selectingStep = "start";
+  function prevMonth() {
+    $$invalidate(15, currentMonth = new Date(year, month - 1, 1));
+  }
+  function nextMonth() {
+    $$invalidate(15, currentMonth = new Date(year, month + 1, 1));
+  }
+  let calendarDays = [];
+  function createDayObj(dateStr, dayNum, isCurrentMonth) {
+    const isToday = dateStr === todayStr;
+    const isStart = dateStr === tempStart;
+    const isEnd = dateStr === tempEnd;
+    const isSelected = isStart || isEnd;
+    const isInRange = tempStart && tempEnd && dateStr >= tempStart && dateStr <= tempEnd;
+    return {
+      dateStr,
+      dayNum,
+      isCurrentMonth,
+      isToday,
+      isSelected,
+      isInRange,
+      isStart,
+      isEnd
+    };
+  }
+  function handleDayClick(day) {
+    if (selectingStep === "start") {
+      $$invalidate(4, tempStart = day.dateStr);
+      $$invalidate(5, tempEnd = day.dateStr);
+      selectingStep = "end";
+    } else {
+      if (day.dateStr < tempStart) {
+        $$invalidate(5, tempEnd = tempStart);
+        $$invalidate(4, tempStart = day.dateStr);
+      } else {
+        $$invalidate(5, tempEnd = day.dateStr);
+      }
+      selectingStep = "start";
+    }
+  }
+  function applyPreset(daysToAdd) {
+    const now2 = /* @__PURE__ */ new Date();
+    const s = now2.toISOString().slice(0, 10);
+    const endD = new Date(now2.getTime() + daysToAdd * 864e5);
+    const e = endD.toISOString().slice(0, 10);
+    $$invalidate(4, tempStart = s);
+    $$invalidate(5, tempEnd = e);
+    $$invalidate(15, currentMonth = new Date(now2.getFullYear(), now2.getMonth(), 1));
+  }
+  function applyThisWeek() {
+    const now2 = /* @__PURE__ */ new Date();
+    const day = now2.getDay() || 7;
+    const monday = new Date(now2);
+    monday.setDate(now2.getDate() - day + 1);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    $$invalidate(4, tempStart = monday.toISOString().slice(0, 10));
+    $$invalidate(5, tempEnd = sunday.toISOString().slice(0, 10));
+  }
+  function applyNextWeek() {
+    const now2 = /* @__PURE__ */ new Date();
+    const day = now2.getDay() || 7;
+    const nextMon = new Date(now2);
+    nextMon.setDate(now2.getDate() - day + 8);
+    const nextSun = new Date(nextMon);
+    nextSun.setDate(nextMon.getDate() + 6);
+    $$invalidate(4, tempStart = nextMon.toISOString().slice(0, 10));
+    $$invalidate(5, tempEnd = nextSun.toISOString().slice(0, 10));
+    $$invalidate(15, currentMonth = new Date(nextMon.getFullYear(), nextMon.getMonth(), 1));
+  }
+  const click_handler = () => applyPreset(0);
+  const click_handler_1 = () => applyPreset(2);
+  const click_handler_2 = () => applyPreset(13);
+  const click_handler_3 = () => applyPreset(29);
+  const click_handler_4 = (day) => handleDayClick(day);
+  const click_handler_5 = () => onConfirm(tempStart, tempEnd);
+  $$self.$$set = ($$props2) => {
+    if ("startDate" in $$props2) $$invalidate(13, startDate = $$props2.startDate);
+    if ("endDate" in $$props2) $$invalidate(14, endDate = $$props2.endDate);
+    if ("onConfirm" in $$props2) $$invalidate(0, onConfirm = $$props2.onConfirm);
+    if ("onCancel" in $$props2) $$invalidate(1, onCancel = $$props2.onCancel);
+  };
+  $$self.$$.update = () => {
+    if ($$self.$$.dirty & /*currentMonth*/
+    32768) {
+      $: $$invalidate(3, year = currentMonth.getFullYear());
+    }
+    if ($$self.$$.dirty & /*currentMonth*/
+    32768) {
+      $: $$invalidate(2, month = currentMonth.getMonth());
+    }
+    if ($$self.$$.dirty & /*year, month*/
+    12) {
+      $: {
+        const days = [];
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+        const startOffset = (firstDayIndex + 6) % 7;
+        for (let i = startOffset - 1; i >= 0; i--) {
+          const d = daysInPrevMonth - i;
+          const prevDate = new Date(year, month - 1, d);
+          const ds = prevDate.toISOString().slice(0, 10);
+          days.push(createDayObj(ds, d, false));
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+          const curDate = new Date(year, month, d);
+          const ds = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          days.push(createDayObj(ds, d, true));
+        }
+        const remaining = (7 - days.length % 7) % 7;
+        for (let d = 1; d <= remaining; d++) {
+          const nextDate = new Date(year, month + 1, d);
+          const ds = nextDate.toISOString().slice(0, 10);
+          days.push(createDayObj(ds, d, false));
+        }
+        $$invalidate(6, calendarDays = days);
+      }
+    }
+  };
+  return [
+    onConfirm,
+    onCancel,
+    month,
+    year,
+    tempStart,
+    tempEnd,
+    calendarDays,
+    prevMonth,
+    nextMonth,
+    handleDayClick,
+    applyPreset,
+    applyThisWeek,
+    applyNextWeek,
+    startDate,
+    endDate,
+    currentMonth,
+    click_handler,
+    click_handler_1,
+    click_handler_2,
+    click_handler_3,
+    click_handler_4,
+    click_handler_5
+  ];
+}
+var DateRangePicker = class extends SvelteComponent {
+  constructor(options) {
+    super();
+    init(
+      this,
+      options,
+      instance,
+      create_fragment,
+      safe_not_equal,
+      {
+        startDate: 13,
+        endDate: 14,
+        onConfirm: 0,
+        onCancel: 1
+      },
+      add_css
+    );
+  }
+};
+var DateRangePicker_default = DateRangePicker;
+
+// src/ui/components/VisualTable.svelte
+function add_css2(target) {
+  append_styles(target, "svelte-1hzryzi", ".matrix-table-container.svelte-1hzryzi.svelte-1hzryzi{width:100%;height:100%;overflow-y:auto;font-size:13px;color:var(--text-normal);background-color:var(--background-primary);position:relative}.matrix-empty-state.svelte-1hzryzi.svelte-1hzryzi{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}.empty-icon.svelte-1hzryzi.svelte-1hzryzi{font-size:36px;margin-bottom:12px}.empty-title.svelte-1hzryzi.svelte-1hzryzi{font-size:15px;font-weight:600;margin-bottom:6px}.empty-hint.svelte-1hzryzi.svelte-1hzryzi{color:var(--text-muted);font-size:13px}.empty-hint.svelte-1hzryzi code.svelte-1hzryzi{background:var(--background-secondary);padding:2px 6px;border-radius:4px}.matrix-table.svelte-1hzryzi.svelte-1hzryzi{display:flex;flex-direction:column;width:100%;border-collapse:collapse}.table-header.svelte-1hzryzi.svelte-1hzryzi{display:flex;align-items:center;padding:8px 14px;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);background:var(--background-secondary);border-bottom:1px solid var(--background-modifier-border);position:sticky;top:0;z-index:10}.col-title.svelte-1hzryzi.svelte-1hzryzi{flex:2;min-width:180px}.col-status.svelte-1hzryzi.svelte-1hzryzi{width:130px}.col-dates.svelte-1hzryzi.svelte-1hzryzi{width:230px;position:relative}.col-progress.svelte-1hzryzi.svelte-1hzryzi{width:120px;display:flex;align-items:center;gap:8px}.col-actions.svelte-1hzryzi.svelte-1hzryzi{width:50px;text-align:center}.project-group.svelte-1hzryzi.svelte-1hzryzi{border-bottom:1px solid var(--background-modifier-border)}.project-row.svelte-1hzryzi.svelte-1hzryzi{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--background-secondary-alt);cursor:pointer;user-select:none;transition:background 0.15s ease}.project-row.svelte-1hzryzi.svelte-1hzryzi:hover{background:var(--background-modifier-hover)}.project-info.svelte-1hzryzi.svelte-1hzryzi{display:flex;align-items:center;gap:8px}.collapse-icon.svelte-1hzryzi.svelte-1hzryzi{font-size:10px;color:var(--text-muted);width:12px}.project-name.svelte-1hzryzi.svelte-1hzryzi{font-weight:600;font-size:13.5px;color:var(--text-normal)}.task-count-badge.svelte-1hzryzi.svelte-1hzryzi{font-size:11px;background:var(--background-modifier-border);color:var(--text-muted);padding:2px 7px;border-radius:10px}.project-meta.svelte-1hzryzi.svelte-1hzryzi{display:flex;align-items:center;gap:10px}.progress-bar-wrap.svelte-1hzryzi.svelte-1hzryzi{width:90px;height:6px;background:var(--background-modifier-border);border-radius:3px;overflow:hidden}.progress-bar-fill.svelte-1hzryzi.svelte-1hzryzi{height:100%;background:var(--interactive-accent);border-radius:3px;transition:width 0.3s ease}.progress-text.svelte-1hzryzi.svelte-1hzryzi{font-size:11px;font-weight:600;color:var(--text-muted);width:35px;text-align:right}.task-row.svelte-1hzryzi.svelte-1hzryzi{display:flex;align-items:center;padding:7px 14px 7px 28px;border-top:1px solid var(--background-modifier-border);transition:background 0.1s ease}.task-row.svelte-1hzryzi.svelte-1hzryzi:hover{background:var(--background-modifier-hover)}.task-title-col.svelte-1hzryzi.svelte-1hzryzi{display:flex;align-items:center;gap:8px}.task-bullet.svelte-1hzryzi.svelte-1hzryzi{color:var(--text-muted)}.task-title.svelte-1hzryzi.svelte-1hzryzi{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status-select.svelte-1hzryzi.svelte-1hzryzi{padding:3px 8px;border-radius:12px;font-size:11.5px;font-weight:500;border:1px solid transparent;cursor:pointer;outline:none;background:var(--background-primary)}.select-todo.svelte-1hzryzi.svelte-1hzryzi{color:var(--text-muted);border-color:var(--background-modifier-border)}.select-in-progress.svelte-1hzryzi.svelte-1hzryzi{color:#3b82f6;background:rgba(59, 130, 246, 0.12);border-color:rgba(59, 130, 246, 0.3)}.select-done.svelte-1hzryzi.svelte-1hzryzi{color:#10b981;background:rgba(16, 185, 129, 0.12);border-color:rgba(16, 185, 129, 0.3)}.select-blocked.svelte-1hzryzi.svelte-1hzryzi{color:#ef4444;background:rgba(239, 68, 68, 0.12);border-color:rgba(239, 68, 68, 0.3)}.date-pill-btn.svelte-1hzryzi.svelte-1hzryzi{display:inline-flex;align-items:center;gap:6px;background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11.5px;color:var(--text-normal);transition:all 0.15s ease}.date-pill-btn.svelte-1hzryzi.svelte-1hzryzi:hover{background:var(--background-modifier-hover);border-color:var(--interactive-accent)}.cal-icon.svelte-1hzryzi.svelte-1hzryzi{font-size:11px;opacity:0.8}.date-text.svelte-1hzryzi.svelte-1hzryzi{font-family:var(--font-monospace)}.arrow-icon.svelte-1hzryzi.svelte-1hzryzi{font-size:9px;color:var(--text-muted)}.datepicker-popover.svelte-1hzryzi.svelte-1hzryzi{position:absolute;top:32px;left:0;z-index:100}.task-progress-wrap.svelte-1hzryzi.svelte-1hzryzi{width:60px;height:5px;background:var(--background-modifier-border);border-radius:3px;overflow:hidden}.task-progress-bar.svelte-1hzryzi.svelte-1hzryzi{height:100%;background:#10b981;border-radius:3px}.task-progress-num.svelte-1hzryzi.svelte-1hzryzi{font-size:11px;color:var(--text-muted);width:30px}.action-btn.svelte-1hzryzi.svelte-1hzryzi,.jump-note-btn.svelte-1hzryzi.svelte-1hzryzi{background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:3px 6px;border-radius:4px;transition:all 0.15s ease}.action-btn.svelte-1hzryzi.svelte-1hzryzi:hover,.jump-note-btn.svelte-1hzryzi.svelte-1hzryzi:hover{color:var(--text-normal);background:var(--background-modifier-hover)}");
+}
+function get_each_context2(ctx, list, i) {
+  const child_ctx = ctx.slice();
+  child_ctx[20] = list[i];
   return child_ctx;
 }
 function get_each_context_1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[21] = list[i];
+  child_ctx[23] = list[i];
   return child_ctx;
 }
 function create_else_block(ctx) {
@@ -898,32 +1540,33 @@ function create_else_block(ctx) {
   let div6;
   let each_blocks = [];
   let each_1_lookup = /* @__PURE__ */ new Map();
+  let current;
   let each_value = ensure_array_like(
     /*projects*/
     ctx[0]
   );
   const get_key = (ctx2) => (
     /*project*/
-    ctx2[18].id
+    ctx2[20].id
   );
   for (let i = 0; i < each_value.length; i += 1) {
-    let child_ctx = get_each_context(ctx, each_value, i);
+    let child_ctx = get_each_context2(ctx, each_value, i);
     let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block(key, child_ctx));
+    each_1_lookup.set(key, each_blocks[i] = create_each_block2(key, child_ctx));
   }
   return {
     c() {
       div7 = element("div");
       div5 = element("div");
-      div5.innerHTML = `<div class="col-title svelte-w4nlsx">\u4EFB\u52A1\u540D\u79F0 / \u9879\u76EE</div> <div class="col-status svelte-w4nlsx">\u72B6\u6001</div> <div class="col-dates svelte-w4nlsx">\u6392\u671F\u533A\u95F4</div> <div class="col-progress svelte-w4nlsx">\u8FDB\u5EA6</div> <div class="col-actions svelte-w4nlsx">\u64CD\u4F5C</div>`;
+      div5.innerHTML = `<div class="col-title svelte-1hzryzi">\u4EFB\u52A1\u540D\u79F0 / \u9879\u76EE</div> <div class="col-status svelte-1hzryzi">\u72B6\u6001</div> <div class="col-dates svelte-1hzryzi">\u6392\u671F\u533A\u95F4 (\u70B9\u51FB\u9009\u62E9)</div> <div class="col-progress svelte-1hzryzi">\u8FDB\u5EA6</div> <div class="col-actions svelte-1hzryzi">\u64CD\u4F5C</div>`;
       t9 = space();
       div6 = element("div");
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
-      attr(div5, "class", "table-header svelte-w4nlsx");
+      attr(div5, "class", "table-header svelte-1hzryzi");
       attr(div6, "class", "table-body");
-      attr(div7, "class", "matrix-table svelte-w4nlsx");
+      attr(div7, "class", "matrix-table svelte-1hzryzi");
     },
     m(target, anchor) {
       insert(target, div7, anchor);
@@ -935,16 +1578,32 @@ function create_else_block(ctx) {
           each_blocks[i].m(div6, null);
         }
       }
+      current = true;
     },
     p(ctx2, dirty) {
-      if (dirty & /*projects, onSelectTask, onOpenNote, handleEndDateChange, handleStartDateChange, handleStatusChange, collapsedProjects, toggleCollapse*/
-      255) {
+      if (dirty & /*projects, onSelectTask, onOpenNote, handleDateConfirm, activeDatePickerTaskId, toggleDatePicker, handleStatusChange, collapsedProjects, toggleCollapse*/
+      511) {
         each_value = ensure_array_like(
           /*projects*/
           ctx2[0]
         );
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, div6, destroy_block, create_each_block, null, get_each_context);
+        group_outros();
+        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, div6, outro_and_destroy_block, create_each_block2, null, get_each_context2);
+        check_outros();
       }
+    },
+    i(local) {
+      if (current) return;
+      for (let i = 0; i < each_value.length; i += 1) {
+        transition_in(each_blocks[i]);
+      }
+      current = true;
+    },
+    o(local) {
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        transition_out(each_blocks[i]);
+      }
+      current = false;
     },
     d(detaching) {
       if (detaching) {
@@ -961,13 +1620,15 @@ function create_if_block(ctx) {
   return {
     c() {
       div3 = element("div");
-      div3.innerHTML = `<div class="empty-icon svelte-w4nlsx">\u{1F4CB}</div> <div class="empty-title svelte-w4nlsx">\u672A\u68C0\u6D4B\u5230\u5E26\u6709\u4EFB\u52A1\u6392\u671F\u7684 Markdown \u6587\u6863</div> <div class="empty-hint svelte-w4nlsx">\u5728\u4EFB\u4F55\u7B14\u8BB0\u4E2D\u5199\u5165 <code class="svelte-w4nlsx">- [ ] \u4EFB\u52A1\u6807\u9898 2026-10-25 ~ 2026-10-28</code> \u5373\u53EF\u81EA\u52A8\u8BC6\u522B\u3002</div>`;
-      attr(div3, "class", "matrix-empty-state svelte-w4nlsx");
+      div3.innerHTML = `<div class="empty-icon svelte-1hzryzi">\u{1F4CB}</div> <div class="empty-title svelte-1hzryzi">\u672A\u68C0\u6D4B\u5230\u5E26\u6709\u4EFB\u52A1\u6392\u671F\u7684 Markdown \u6587\u6863</div> <div class="empty-hint svelte-1hzryzi">\u5728\u4EFB\u4F55\u7B14\u8BB0\u4E2D\u5199\u5165 <code class="svelte-1hzryzi">- [ ] \u4EFB\u52A1\u6807\u9898 2026-10-25 ~ 2026-10-28</code> \u5373\u53EF\u81EA\u52A8\u8BC6\u522B\u3002</div>`;
+      attr(div3, "class", "matrix-empty-state svelte-1hzryzi");
     },
     m(target, anchor) {
       insert(target, div3, anchor);
     },
     p: noop,
+    i: noop,
+    o: noop,
     d(detaching) {
       if (detaching) {
         detach(div3);
@@ -979,13 +1640,14 @@ function create_if_block_1(ctx) {
   let each_blocks = [];
   let each_1_lookup = /* @__PURE__ */ new Map();
   let each_1_anchor;
+  let current;
   let each_value_1 = ensure_array_like(
     /*project*/
-    ctx[18].tasks
+    ctx[20].tasks
   );
   const get_key = (ctx2) => (
     /*task*/
-    ctx2[21].id
+    ctx2[23].id
   );
   for (let i = 0; i < each_value_1.length; i += 1) {
     let child_ctx = get_each_context_1(ctx, each_value_1, i);
@@ -1006,16 +1668,32 @@ function create_if_block_1(ctx) {
         }
       }
       insert(target, each_1_anchor, anchor);
+      current = true;
     },
     p(ctx2, dirty) {
-      if (dirty & /*projects, onSelectTask, onOpenNote, handleEndDateChange, handleStartDateChange, handleStatusChange*/
-      231) {
+      if (dirty & /*projects, onSelectTask, onOpenNote, handleDateConfirm, activeDatePickerTaskId, toggleDatePicker, handleStatusChange*/
+      471) {
         each_value_1 = ensure_array_like(
           /*project*/
-          ctx2[18].tasks
+          ctx2[20].tasks
         );
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_1, each_1_lookup, each_1_anchor.parentNode, destroy_block, create_each_block_1, each_1_anchor, get_each_context_1);
+        group_outros();
+        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_1, each_1_lookup, each_1_anchor.parentNode, outro_and_destroy_block, create_each_block_1, each_1_anchor, get_each_context_1);
+        check_outros();
       }
+    },
+    i(local) {
+      if (current) return;
+      for (let i = 0; i < each_value_1.length; i += 1) {
+        transition_in(each_blocks[i]);
+      }
+      current = true;
+    },
+    o(local) {
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        transition_out(each_blocks[i]);
+      }
+      current = false;
     },
     d(detaching) {
       if (detaching) {
@@ -1027,6 +1705,81 @@ function create_if_block_1(ctx) {
     }
   };
 }
+function create_if_block_2(ctx) {
+  let div;
+  let daterangepicker;
+  let current;
+  function func(...args) {
+    return (
+      /*func*/
+      ctx[16](
+        /*task*/
+        ctx[23],
+        ...args
+      )
+    );
+  }
+  daterangepicker = new DateRangePicker_default({
+    props: {
+      startDate: (
+        /*task*/
+        ctx[23].startDate
+      ),
+      endDate: (
+        /*task*/
+        ctx[23].endDate
+      ),
+      onConfirm: func,
+      onCancel: (
+        /*func_1*/
+        ctx[17]
+      )
+    }
+  });
+  return {
+    c() {
+      div = element("div");
+      create_component(daterangepicker.$$.fragment);
+      attr(div, "class", "datepicker-popover svelte-1hzryzi");
+    },
+    m(target, anchor) {
+      insert(target, div, anchor);
+      mount_component(daterangepicker, div, null);
+      current = true;
+    },
+    p(new_ctx, dirty) {
+      ctx = new_ctx;
+      const daterangepicker_changes = {};
+      if (dirty & /*projects*/
+      1) daterangepicker_changes.startDate = /*task*/
+      ctx[23].startDate;
+      if (dirty & /*projects*/
+      1) daterangepicker_changes.endDate = /*task*/
+      ctx[23].endDate;
+      if (dirty & /*projects*/
+      1) daterangepicker_changes.onConfirm = func;
+      if (dirty & /*activeDatePickerTaskId*/
+      16) daterangepicker_changes.onCancel = /*func_1*/
+      ctx[17];
+      daterangepicker.$set(daterangepicker_changes);
+    },
+    i(local) {
+      if (current) return;
+      transition_in(daterangepicker.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(daterangepicker.$$.fragment, local);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div);
+      }
+      destroy_component(daterangepicker);
+    }
+  };
+}
 function create_each_block_1(key_1, ctx) {
   let div7;
   let div0;
@@ -1035,7 +1788,7 @@ function create_each_block_1(key_1, ctx) {
   let span1;
   let t2_value = (
     /*task*/
-    ctx[21].title + ""
+    ctx[23].title + ""
   );
   let t2;
   let span1_title_value;
@@ -1054,58 +1807,50 @@ function create_each_block_1(key_1, ctx) {
   let select_value_value;
   let t8;
   let div2;
-  let input0;
-  let input0_value_value;
-  let t9;
+  let button0;
   let span2;
+  let t10;
+  let span3;
+  let t11_value = (
+    /*task*/
+    ctx[23].startDate + ""
+  );
   let t11;
-  let input1;
-  let input1_value_value;
   let t12;
+  let t13_value = (
+    /*task*/
+    ctx[23].endDate + ""
+  );
+  let t13;
+  let t14;
+  let span4;
+  let t16;
+  let t17;
   let div5;
   let div4;
   let div3;
-  let t13;
-  let span3;
-  let t14_value = (
-    /*task*/
-    ctx[21].progress + ""
-  );
-  let t14;
-  let t15;
-  let t16;
-  let div6;
-  let button;
   let t18;
+  let span5;
+  let t19_value = (
+    /*task*/
+    ctx[23].progress + ""
+  );
+  let t19;
+  let t20;
+  let t21;
+  let div6;
+  let button1;
+  let t23;
   let div7_class_value;
+  let current;
   let mounted;
   let dispose;
   function change_handler(...args) {
     return (
       /*change_handler*/
-      ctx[13](
-        /*task*/
-        ctx[21],
-        ...args
-      )
-    );
-  }
-  function change_handler_1(...args) {
-    return (
-      /*change_handler_1*/
       ctx[14](
         /*task*/
-        ctx[21],
-        ...args
-      )
-    );
-  }
-  function change_handler_2(...args) {
-    return (
-      /*change_handler_2*/
-      ctx[15](
-        /*task*/
-        ctx[21],
+        ctx[23],
         ...args
       )
     );
@@ -1113,20 +1858,34 @@ function create_each_block_1(key_1, ctx) {
   function click_handler_4() {
     return (
       /*click_handler_4*/
-      ctx[16](
+      ctx[15](
         /*task*/
-        ctx[21],
-        /*project*/
-        ctx[18]
+        ctx[23]
       )
     );
   }
+  let if_block = (
+    /*activeDatePickerTaskId*/
+    ctx[4] === /*task*/
+    ctx[23].id && create_if_block_2(ctx)
+  );
   function click_handler_5() {
     return (
       /*click_handler_5*/
-      ctx[17](
+      ctx[18](
         /*task*/
-        ctx[21]
+        ctx[23],
+        /*project*/
+        ctx[20]
+      )
+    );
+  }
+  function click_handler_6() {
+    return (
+      /*click_handler_6*/
+      ctx[19](
+        /*task*/
+        ctx[23]
       )
     );
   }
@@ -1154,30 +1913,37 @@ function create_each_block_1(key_1, ctx) {
       option3.textContent = "\u963B\u585E (Blocked)";
       t8 = space();
       div2 = element("div");
-      input0 = element("input");
-      t9 = space();
+      button0 = element("button");
       span2 = element("span");
-      span2.textContent = "~";
-      t11 = space();
-      input1 = element("input");
-      t12 = space();
+      span2.textContent = "\u{1F4C5}";
+      t10 = space();
+      span3 = element("span");
+      t11 = text(t11_value);
+      t12 = text(" ~ ");
+      t13 = text(t13_value);
+      t14 = space();
+      span4 = element("span");
+      span4.textContent = "\u25BE";
+      t16 = space();
+      if (if_block) if_block.c();
+      t17 = space();
       div5 = element("div");
       div4 = element("div");
       div3 = element("div");
-      t13 = space();
-      span3 = element("span");
-      t14 = text(t14_value);
-      t15 = text("%");
-      t16 = space();
-      div6 = element("div");
-      button = element("button");
-      button.textContent = "\u2197";
       t18 = space();
-      attr(span0, "class", "task-bullet svelte-w4nlsx");
-      attr(span1, "class", "task-title svelte-w4nlsx");
+      span5 = element("span");
+      t19 = text(t19_value);
+      t20 = text("%");
+      t21 = space();
+      div6 = element("div");
+      button1 = element("button");
+      button1.textContent = "\u2197";
+      t23 = space();
+      attr(span0, "class", "task-bullet svelte-1hzryzi");
+      attr(span1, "class", "task-title svelte-1hzryzi");
       attr(span1, "title", span1_title_value = /*task*/
-      ctx[21].title);
-      attr(div0, "class", "col-title task-title-col svelte-w4nlsx");
+      ctx[23].title);
+      attr(div0, "class", "col-title task-title-col svelte-1hzryzi");
       option0.__value = option0_value_value = "todo" /* TODO */;
       set_input_value(option0, option0.__value);
       option1.__value = option1_value_value = "in-progress" /* IN_PROGRESS */;
@@ -1187,33 +1953,31 @@ function create_each_block_1(key_1, ctx) {
       option3.__value = option3_value_value = "blocked" /* BLOCKED */;
       set_input_value(option3, option3.__value);
       attr(select, "class", select_class_value = "status-select select-" + /*task*/
-      ctx[21].status + " svelte-w4nlsx");
-      attr(div1, "class", "col-status svelte-w4nlsx");
-      attr(input0, "type", "date");
-      attr(input0, "class", "date-input svelte-w4nlsx");
-      input0.value = input0_value_value = /*task*/
-      ctx[21].startDate;
-      attr(span2, "class", "date-sep svelte-w4nlsx");
-      attr(input1, "type", "date");
-      attr(input1, "class", "date-input svelte-w4nlsx");
-      input1.value = input1_value_value = /*task*/
-      ctx[21].endDate;
-      attr(div2, "class", "col-dates svelte-w4nlsx");
-      attr(div3, "class", "task-progress-bar svelte-w4nlsx");
+      ctx[23].status + " svelte-1hzryzi");
+      attr(div1, "class", "col-status svelte-1hzryzi");
+      attr(span2, "class", "cal-icon svelte-1hzryzi");
+      attr(span3, "class", "date-text svelte-1hzryzi");
+      attr(span4, "class", "arrow-icon svelte-1hzryzi");
+      attr(button0, "type", "button");
+      attr(button0, "class", "date-pill-btn svelte-1hzryzi");
+      attr(button0, "title", "\u70B9\u51FB\u5F39\u51FA\u65E5\u5386\u9762\u677F\u9009\u62E9\u65E5\u671F\u533A\u95F4");
+      attr(div2, "class", "col-dates svelte-1hzryzi");
+      attr(div3, "class", "task-progress-bar svelte-1hzryzi");
       set_style(
         div3,
         "width",
         /*task*/
-        ctx[21].progress + "%"
+        ctx[23].progress + "%"
       );
-      attr(div4, "class", "task-progress-wrap svelte-w4nlsx");
-      attr(span3, "class", "task-progress-num svelte-w4nlsx");
-      attr(div5, "class", "col-progress svelte-w4nlsx");
-      attr(button, "class", "jump-note-btn svelte-w4nlsx");
-      attr(button, "title", "\u76F4\u8FBE\u7B14\u8BB0\u5BF9\u5E94\u5F85\u529E\u884C");
-      attr(div6, "class", "col-actions svelte-w4nlsx");
+      attr(div4, "class", "task-progress-wrap svelte-1hzryzi");
+      attr(span5, "class", "task-progress-num svelte-1hzryzi");
+      attr(div5, "class", "col-progress svelte-1hzryzi");
+      attr(button1, "type", "button");
+      attr(button1, "class", "jump-note-btn svelte-1hzryzi");
+      attr(button1, "title", "\u76F4\u8FBE\u7B14\u8BB0\u5BF9\u5E94\u5F85\u529E\u884C");
+      attr(div6, "class", "col-actions svelte-1hzryzi");
       attr(div7, "class", div7_class_value = "task-row status-" + /*task*/
-      ctx[21].status + " svelte-w4nlsx");
+      ctx[23].status + " svelte-1hzryzi");
       this.first = div7;
     },
     m(target, anchor) {
@@ -1233,108 +1997,144 @@ function create_each_block_1(key_1, ctx) {
       select_option(
         select,
         /*task*/
-        ctx[21].status
+        ctx[23].status
       );
       append(div7, t8);
       append(div7, div2);
-      append(div2, input0);
-      append(div2, t9);
-      append(div2, span2);
-      append(div2, t11);
-      append(div2, input1);
-      append(div7, t12);
+      append(div2, button0);
+      append(button0, span2);
+      append(button0, t10);
+      append(button0, span3);
+      append(span3, t11);
+      append(span3, t12);
+      append(span3, t13);
+      append(button0, t14);
+      append(button0, span4);
+      append(div2, t16);
+      if (if_block) if_block.m(div2, null);
+      append(div7, t17);
       append(div7, div5);
       append(div5, div4);
       append(div4, div3);
-      append(div5, t13);
-      append(div5, span3);
-      append(span3, t14);
-      append(span3, t15);
-      append(div7, t16);
+      append(div5, t18);
+      append(div5, span5);
+      append(span5, t19);
+      append(span5, t20);
+      append(div7, t21);
       append(div7, div6);
-      append(div6, button);
-      append(div7, t18);
+      append(div6, button1);
+      append(div7, t23);
+      current = true;
       if (!mounted) {
         dispose = [
           listen(select, "change", change_handler),
           listen(select, "click", stop_propagation(
             /*click_handler*/
-            ctx[10]
+            ctx[11]
           )),
-          listen(input0, "change", change_handler_1),
-          listen(input1, "change", change_handler_2),
+          listen(button0, "click", click_handler_4),
           listen(div2, "click", stop_propagation(
             /*click_handler_1*/
-            ctx[9]
+            ctx[10]
           )),
-          listen(button, "click", stop_propagation(click_handler_4)),
-          listen(div7, "click", click_handler_5)
+          listen(button1, "click", stop_propagation(click_handler_5)),
+          listen(div7, "click", click_handler_6)
         ];
         mounted = true;
       }
     },
     p(new_ctx, dirty) {
       ctx = new_ctx;
-      if (dirty & /*projects*/
-      1 && t2_value !== (t2_value = /*task*/
-      ctx[21].title + "")) set_data(t2, t2_value);
-      if (dirty & /*projects*/
+      if ((!current || dirty & /*projects*/
+      1) && t2_value !== (t2_value = /*task*/
+      ctx[23].title + "")) set_data(t2, t2_value);
+      if (!current || dirty & /*projects*/
       1 && span1_title_value !== (span1_title_value = /*task*/
-      ctx[21].title)) {
+      ctx[23].title)) {
         attr(span1, "title", span1_title_value);
       }
-      if (dirty & /*projects*/
+      if (!current || dirty & /*projects*/
       1 && select_class_value !== (select_class_value = "status-select select-" + /*task*/
-      ctx[21].status + " svelte-w4nlsx")) {
+      ctx[23].status + " svelte-1hzryzi")) {
         attr(select, "class", select_class_value);
       }
-      if (dirty & /*projects*/
+      if (!current || dirty & /*projects*/
       1 && select_value_value !== (select_value_value = /*task*/
-      ctx[21].status)) {
+      ctx[23].status)) {
         select_option(
           select,
           /*task*/
-          ctx[21].status
+          ctx[23].status
         );
       }
-      if (dirty & /*projects*/
-      1 && input0_value_value !== (input0_value_value = /*task*/
-      ctx[21].startDate)) {
-        input0.value = input0_value_value;
+      if ((!current || dirty & /*projects*/
+      1) && t11_value !== (t11_value = /*task*/
+      ctx[23].startDate + "")) set_data(t11, t11_value);
+      if ((!current || dirty & /*projects*/
+      1) && t13_value !== (t13_value = /*task*/
+      ctx[23].endDate + "")) set_data(t13, t13_value);
+      if (
+        /*activeDatePickerTaskId*/
+        ctx[4] === /*task*/
+        ctx[23].id
+      ) {
+        if (if_block) {
+          if_block.p(ctx, dirty);
+          if (dirty & /*activeDatePickerTaskId, projects*/
+          17) {
+            transition_in(if_block, 1);
+          }
+        } else {
+          if_block = create_if_block_2(ctx);
+          if_block.c();
+          transition_in(if_block, 1);
+          if_block.m(div2, null);
+        }
+      } else if (if_block) {
+        group_outros();
+        transition_out(if_block, 1, 1, () => {
+          if_block = null;
+        });
+        check_outros();
       }
-      if (dirty & /*projects*/
-      1 && input1_value_value !== (input1_value_value = /*task*/
-      ctx[21].endDate)) {
-        input1.value = input1_value_value;
-      }
-      if (dirty & /*projects*/
+      if (!current || dirty & /*projects*/
       1) {
         set_style(
           div3,
           "width",
           /*task*/
-          ctx[21].progress + "%"
+          ctx[23].progress + "%"
         );
       }
-      if (dirty & /*projects*/
-      1 && t14_value !== (t14_value = /*task*/
-      ctx[21].progress + "")) set_data(t14, t14_value);
-      if (dirty & /*projects*/
+      if ((!current || dirty & /*projects*/
+      1) && t19_value !== (t19_value = /*task*/
+      ctx[23].progress + "")) set_data(t19, t19_value);
+      if (!current || dirty & /*projects*/
       1 && div7_class_value !== (div7_class_value = "task-row status-" + /*task*/
-      ctx[21].status + " svelte-w4nlsx")) {
+      ctx[23].status + " svelte-1hzryzi")) {
         attr(div7, "class", div7_class_value);
       }
+    },
+    i(local) {
+      if (current) return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
     },
     d(detaching) {
       if (detaching) {
         detach(div7);
       }
+      if (if_block) if_block.d();
       mounted = false;
       run_all(dispose);
     }
   };
 }
-function create_each_block(key_1, ctx) {
+function create_each_block2(key_1, ctx) {
   let div5;
   let div4;
   let div0;
@@ -1343,7 +2143,7 @@ function create_each_block(key_1, ctx) {
     /*collapsedProjects*/
     ctx[3][
       /*project*/
-      ctx[18].id
+      ctx[20].id
     ] ? "\u25B6" : "\u25BC"
   );
   let t0;
@@ -1351,7 +2151,7 @@ function create_each_block(key_1, ctx) {
   let span1;
   let t2_value = (
     /*project*/
-    ctx[18].name + ""
+    ctx[20].name + ""
   );
   let t2;
   let span1_title_value;
@@ -1359,7 +2159,7 @@ function create_each_block(key_1, ctx) {
   let span2;
   let t4_value = (
     /*project*/
-    ctx[18].tasks.length + ""
+    ctx[20].tasks.length + ""
   );
   let t4;
   let t5;
@@ -1372,7 +2172,7 @@ function create_each_block(key_1, ctx) {
   let span3;
   let t8_value = (
     /*project*/
-    ctx[18].progress + ""
+    ctx[20].progress + ""
   );
   let t8;
   let t9;
@@ -1380,30 +2180,31 @@ function create_each_block(key_1, ctx) {
   let button;
   let t12;
   let t13;
+  let current;
   let mounted;
   let dispose;
   function click_handler_2() {
     return (
       /*click_handler_2*/
-      ctx[11](
+      ctx[12](
         /*project*/
-        ctx[18]
+        ctx[20]
       )
     );
   }
   function click_handler_3() {
     return (
       /*click_handler_3*/
-      ctx[12](
+      ctx[13](
         /*project*/
-        ctx[18]
+        ctx[20]
       )
     );
   }
   let if_block = !/*collapsedProjects*/
   ctx[3][
     /*project*/
-    ctx[18].id
+    ctx[20].id
   ] && create_if_block_1(ctx);
   return {
     key: key_1,
@@ -1435,28 +2236,29 @@ function create_each_block(key_1, ctx) {
       t12 = space();
       if (if_block) if_block.c();
       t13 = space();
-      attr(span0, "class", "collapse-icon svelte-w4nlsx");
-      attr(span1, "class", "project-name svelte-w4nlsx");
+      attr(span0, "class", "collapse-icon svelte-1hzryzi");
+      attr(span1, "class", "project-name svelte-1hzryzi");
       attr(span1, "title", span1_title_value = /*project*/
-      ctx[18].filePath);
-      attr(span2, "class", "task-count-badge svelte-w4nlsx");
-      attr(div0, "class", "project-info svelte-w4nlsx");
-      attr(div1, "class", "progress-bar-fill svelte-w4nlsx");
+      ctx[20].filePath);
+      attr(span2, "class", "task-count-badge svelte-1hzryzi");
+      attr(div0, "class", "project-info svelte-1hzryzi");
+      attr(div1, "class", "progress-bar-fill svelte-1hzryzi");
       set_style(
         div1,
         "width",
         /*project*/
-        ctx[18].progress + "%"
+        ctx[20].progress + "%"
       );
-      attr(div2, "class", "progress-bar-wrap svelte-w4nlsx");
+      attr(div2, "class", "progress-bar-wrap svelte-1hzryzi");
       attr(div2, "title", div2_title_value = `\u603B\u5B8C\u6210\u7387: ${/*project*/
-      ctx[18].progress}%`);
-      attr(span3, "class", "progress-text svelte-w4nlsx");
-      attr(button, "class", "action-btn svelte-w4nlsx");
+      ctx[20].progress}%`);
+      attr(span3, "class", "progress-text svelte-1hzryzi");
+      attr(button, "type", "button");
+      attr(button, "class", "action-btn svelte-1hzryzi");
       attr(button, "title", "\u5728 Obsidian \u4E2D\u6253\u5F00\u8BE5\u9879\u76EE\u7B14\u8BB0");
-      attr(div3, "class", "project-meta svelte-w4nlsx");
-      attr(div4, "class", "project-row svelte-w4nlsx");
-      attr(div5, "class", "project-group svelte-w4nlsx");
+      attr(div3, "class", "project-meta svelte-1hzryzi");
+      attr(div4, "class", "project-row svelte-1hzryzi");
+      attr(div5, "class", "project-group svelte-1hzryzi");
       this.first = div5;
     },
     m(target, anchor) {
@@ -1485,6 +2287,7 @@ function create_each_block(key_1, ctx) {
       append(div5, t12);
       if (if_block) if_block.m(div5, null);
       append(div5, t13);
+      current = true;
       if (!mounted) {
         dispose = [
           listen(button, "click", stop_propagation(click_handler_2)),
@@ -1495,56 +2298,73 @@ function create_each_block(key_1, ctx) {
     },
     p(new_ctx, dirty) {
       ctx = new_ctx;
-      if (dirty & /*collapsedProjects, projects*/
-      9 && t0_value !== (t0_value = /*collapsedProjects*/
+      if ((!current || dirty & /*collapsedProjects, projects*/
+      9) && t0_value !== (t0_value = /*collapsedProjects*/
       ctx[3][
         /*project*/
-        ctx[18].id
+        ctx[20].id
       ] ? "\u25B6" : "\u25BC")) set_data(t0, t0_value);
-      if (dirty & /*projects*/
-      1 && t2_value !== (t2_value = /*project*/
-      ctx[18].name + "")) set_data(t2, t2_value);
-      if (dirty & /*projects*/
+      if ((!current || dirty & /*projects*/
+      1) && t2_value !== (t2_value = /*project*/
+      ctx[20].name + "")) set_data(t2, t2_value);
+      if (!current || dirty & /*projects*/
       1 && span1_title_value !== (span1_title_value = /*project*/
-      ctx[18].filePath)) {
+      ctx[20].filePath)) {
         attr(span1, "title", span1_title_value);
       }
-      if (dirty & /*projects*/
-      1 && t4_value !== (t4_value = /*project*/
-      ctx[18].tasks.length + "")) set_data(t4, t4_value);
-      if (dirty & /*projects*/
+      if ((!current || dirty & /*projects*/
+      1) && t4_value !== (t4_value = /*project*/
+      ctx[20].tasks.length + "")) set_data(t4, t4_value);
+      if (!current || dirty & /*projects*/
       1) {
         set_style(
           div1,
           "width",
           /*project*/
-          ctx[18].progress + "%"
+          ctx[20].progress + "%"
         );
       }
-      if (dirty & /*projects*/
+      if (!current || dirty & /*projects*/
       1 && div2_title_value !== (div2_title_value = `\u603B\u5B8C\u6210\u7387: ${/*project*/
-      ctx[18].progress}%`)) {
+      ctx[20].progress}%`)) {
         attr(div2, "title", div2_title_value);
       }
-      if (dirty & /*projects*/
-      1 && t8_value !== (t8_value = /*project*/
-      ctx[18].progress + "")) set_data(t8, t8_value);
+      if ((!current || dirty & /*projects*/
+      1) && t8_value !== (t8_value = /*project*/
+      ctx[20].progress + "")) set_data(t8, t8_value);
       if (!/*collapsedProjects*/
       ctx[3][
         /*project*/
-        ctx[18].id
+        ctx[20].id
       ]) {
         if (if_block) {
           if_block.p(ctx, dirty);
+          if (dirty & /*collapsedProjects, projects*/
+          9) {
+            transition_in(if_block, 1);
+          }
         } else {
           if_block = create_if_block_1(ctx);
           if_block.c();
+          transition_in(if_block, 1);
           if_block.m(div5, t13);
         }
       } else if (if_block) {
-        if_block.d(1);
-        if_block = null;
+        group_outros();
+        transition_out(if_block, 1, 1, () => {
+          if_block = null;
+        });
+        check_outros();
       }
+    },
+    i(local) {
+      if (current) return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
     },
     d(detaching) {
       if (detaching) {
@@ -1556,50 +2376,73 @@ function create_each_block(key_1, ctx) {
     }
   };
 }
-function create_fragment(ctx) {
+function create_fragment2(ctx) {
   let div;
+  let current_block_type_index;
+  let if_block;
+  let current;
+  const if_block_creators = [create_if_block, create_else_block];
+  const if_blocks = [];
   function select_block_type(ctx2, dirty) {
     if (
       /*projects*/
       ctx2[0].length === 0
-    ) return create_if_block;
-    return create_else_block;
+    ) return 0;
+    return 1;
   }
-  let current_block_type = select_block_type(ctx, -1);
-  let if_block = current_block_type(ctx);
+  current_block_type_index = select_block_type(ctx, -1);
+  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
   return {
     c() {
       div = element("div");
       if_block.c();
-      attr(div, "class", "matrix-table-container svelte-w4nlsx");
+      attr(div, "class", "matrix-table-container svelte-1hzryzi");
     },
     m(target, anchor) {
       insert(target, div, anchor);
-      if_block.m(div, null);
+      if_blocks[current_block_type_index].m(div, null);
+      current = true;
     },
     p(ctx2, [dirty]) {
-      if (current_block_type === (current_block_type = select_block_type(ctx2, dirty)) && if_block) {
-        if_block.p(ctx2, dirty);
+      let previous_block_index = current_block_type_index;
+      current_block_type_index = select_block_type(ctx2, dirty);
+      if (current_block_type_index === previous_block_index) {
+        if_blocks[current_block_type_index].p(ctx2, dirty);
       } else {
-        if_block.d(1);
-        if_block = current_block_type(ctx2);
-        if (if_block) {
+        group_outros();
+        transition_out(if_blocks[previous_block_index], 1, 1, () => {
+          if_blocks[previous_block_index] = null;
+        });
+        check_outros();
+        if_block = if_blocks[current_block_type_index];
+        if (!if_block) {
+          if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
           if_block.c();
-          if_block.m(div, null);
+        } else {
+          if_block.p(ctx2, dirty);
         }
+        transition_in(if_block, 1);
+        if_block.m(div, null);
       }
     },
-    i: noop,
-    o: noop,
+    i(local) {
+      if (current) return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
     d(detaching) {
       if (detaching) {
         detach(div);
       }
-      if_block.d();
+      if_blocks[current_block_type_index].d();
     }
   };
 }
-function instance($$self, $$props, $$invalidate) {
+function instance2($$self, $$props, $$invalidate) {
   let { projects = [] } = $$props;
   let { onUpdateTask = () => {
   } } = $$props;
@@ -1608,6 +2451,7 @@ function instance($$self, $$props, $$invalidate) {
   let { onSelectTask = () => {
   } } = $$props;
   let collapsedProjects = {};
+  let activeDatePickerTaskId = null;
   function toggleCollapse(projectId) {
     $$invalidate(3, collapsedProjects[projectId] = !collapsedProjects[projectId], collapsedProjects);
     $$invalidate(3, collapsedProjects = Object.assign({}, collapsedProjects));
@@ -1619,17 +2463,16 @@ function instance($$self, $$props, $$invalidate) {
     else if (newStatus === "todo" /* TODO */) updated.progress = 0;
     onUpdateTask(updated);
   }
-  function handleStartDateChange(task, e) {
-    const target = e.target;
-    if (target.value) {
-      onUpdateTask(Object.assign(Object.assign({}, task), { startDate: target.value }));
+  function toggleDatePicker(taskId) {
+    if (activeDatePickerTaskId === taskId) {
+      $$invalidate(4, activeDatePickerTaskId = null);
+    } else {
+      $$invalidate(4, activeDatePickerTaskId = taskId);
     }
   }
-  function handleEndDateChange(task, e) {
-    const target = e.target;
-    if (target.value) {
-      onUpdateTask(Object.assign(Object.assign({}, task), { endDate: target.value }));
-    }
+  function handleDateConfirm(task, start, end) {
+    onUpdateTask(Object.assign(Object.assign({}, task), { startDate: start, endDate: end }));
+    $$invalidate(4, activeDatePickerTaskId = null);
   }
   function click_handler_1(event) {
     bubble.call(this, $$self, event);
@@ -1640,13 +2483,14 @@ function instance($$self, $$props, $$invalidate) {
   const click_handler_2 = (project) => onOpenNote(project.filePath);
   const click_handler_3 = (project) => toggleCollapse(project.id);
   const change_handler = (task, e) => handleStatusChange(task, e.currentTarget.value);
-  const change_handler_1 = (task, e) => handleStartDateChange(task, e);
-  const change_handler_2 = (task, e) => handleEndDateChange(task, e);
-  const click_handler_4 = (task, project) => onOpenNote(task.filePath || project.filePath, task.lineIndex);
-  const click_handler_5 = (task) => onSelectTask(task);
+  const click_handler_4 = (task) => toggleDatePicker(task.id);
+  const func = (task, s, e) => handleDateConfirm(task, s, e);
+  const func_12 = () => $$invalidate(4, activeDatePickerTaskId = null);
+  const click_handler_5 = (task, project) => onOpenNote(task.filePath || project.filePath, task.lineIndex);
+  const click_handler_6 = (task) => onSelectTask(task);
   $$self.$$set = ($$props2) => {
     if ("projects" in $$props2) $$invalidate(0, projects = $$props2.projects);
-    if ("onUpdateTask" in $$props2) $$invalidate(8, onUpdateTask = $$props2.onUpdateTask);
+    if ("onUpdateTask" in $$props2) $$invalidate(9, onUpdateTask = $$props2.onUpdateTask);
     if ("onOpenNote" in $$props2) $$invalidate(1, onOpenNote = $$props2.onOpenNote);
     if ("onSelectTask" in $$props2) $$invalidate(2, onSelectTask = $$props2.onSelectTask);
   };
@@ -1655,20 +2499,22 @@ function instance($$self, $$props, $$invalidate) {
     onOpenNote,
     onSelectTask,
     collapsedProjects,
+    activeDatePickerTaskId,
     toggleCollapse,
     handleStatusChange,
-    handleStartDateChange,
-    handleEndDateChange,
+    toggleDatePicker,
+    handleDateConfirm,
     onUpdateTask,
     click_handler_1,
     click_handler,
     click_handler_2,
     click_handler_3,
     change_handler,
-    change_handler_1,
-    change_handler_2,
     click_handler_4,
-    click_handler_5
+    func,
+    func_12,
+    click_handler_5,
+    click_handler_6
   ];
 }
 var VisualTable = class extends SvelteComponent {
@@ -1677,26 +2523,26 @@ var VisualTable = class extends SvelteComponent {
     init(
       this,
       options,
-      instance,
-      create_fragment,
+      instance2,
+      create_fragment2,
       safe_not_equal,
       {
         projects: 0,
-        onUpdateTask: 8,
+        onUpdateTask: 9,
         onOpenNote: 1,
         onSelectTask: 2
       },
-      add_css
+      add_css2
     );
   }
 };
 var VisualTable_default = VisualTable;
 
 // src/ui/components/GanttChart.svelte
-function add_css2(target) {
+function add_css3(target) {
   append_styles(target, "svelte-1nxjg1q", ".matrix-gantt-root.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;flex-direction:column;height:100%;width:100%;background:var(--background-primary);overflow:hidden}.gantt-toolbar.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--background-secondary);border-bottom:1px solid var(--background-modifier-border);font-size:12px}.zoom-controls.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;align-items:center;gap:6px}.zoom-controls.svelte-1nxjg1q .label.svelte-1nxjg1q{color:var(--text-muted)}.zoom-btn.svelte-1nxjg1q.svelte-1nxjg1q{padding:2px 8px;border-radius:4px;border:1px solid var(--background-modifier-border);background:var(--background-primary);color:var(--text-normal);cursor:pointer;font-size:11.5px}.zoom-btn.active.svelte-1nxjg1q.svelte-1nxjg1q{background:var(--interactive-accent);color:var(--text-on-accent);border-color:var(--interactive-accent)}.legend.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;align-items:center;gap:12px}.legend-item.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-muted)}.legend-item.svelte-1nxjg1q .dot.svelte-1nxjg1q{width:8px;height:8px;border-radius:50%}.gantt-scroll-area.svelte-1nxjg1q.svelte-1nxjg1q{flex:1;overflow:auto;position:relative}.gantt-layout.svelte-1nxjg1q.svelte-1nxjg1q{position:relative}.gantt-header-row.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;position:sticky;top:0;z-index:20;background:var(--background-secondary);border-bottom:1px solid var(--background-modifier-border)}.header-sidebar.svelte-1nxjg1q.svelte-1nxjg1q{padding:10px 14px;font-weight:600;color:var(--text-muted);font-size:12px;border-right:1px solid var(--background-modifier-border);background:var(--background-secondary);position:sticky;left:0;z-index:25}.header-timeline.svelte-1nxjg1q.svelte-1nxjg1q{position:relative;height:100%}.header-day-cell.svelte-1nxjg1q.svelte-1nxjg1q{position:absolute;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--background-modifier-border);font-size:10px;color:var(--text-muted)}.header-day-cell.weekend.svelte-1nxjg1q.svelte-1nxjg1q{background:rgba(0, 0, 0, 0.04)}.header-day-cell.is-today.svelte-1nxjg1q.svelte-1nxjg1q{background:rgba(239, 68, 68, 0.12);color:#ef4444;font-weight:bold}.day-month.svelte-1nxjg1q.svelte-1nxjg1q{font-size:9px}.day-number.svelte-1nxjg1q.svelte-1nxjg1q{font-size:11px;font-weight:600}.gantt-body.svelte-1nxjg1q.svelte-1nxjg1q{position:relative}.today-marker-line.svelte-1nxjg1q.svelte-1nxjg1q{position:absolute;top:0;bottom:0;width:2px;background:#ef4444;z-index:15;pointer-events:none}.swimlane-project-banner.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;background:var(--background-secondary-alt);border-bottom:1px solid var(--background-modifier-border);font-weight:600;font-size:12px;padding:6px 0}.banner-sidebar.svelte-1nxjg1q.svelte-1nxjg1q{padding-left:14px;position:sticky;left:0;background:var(--background-secondary-alt);z-index:10}.gantt-task-row.svelte-1nxjg1q.svelte-1nxjg1q{display:flex;position:relative;border-bottom:1px solid var(--background-modifier-border)}.gantt-task-row.svelte-1nxjg1q.svelte-1nxjg1q:hover{background:var(--background-modifier-hover)}.task-sidebar-label.svelte-1nxjg1q.svelte-1nxjg1q{padding:8px 14px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-right:1px solid var(--background-modifier-border);background:var(--background-primary);position:sticky;left:0;z-index:10}.task-track-area.svelte-1nxjg1q.svelte-1nxjg1q{position:relative;height:100%}.track-grid-col.svelte-1nxjg1q.svelte-1nxjg1q{position:absolute;top:0;bottom:0;border-right:1px solid var(--background-modifier-border);pointer-events:none}.track-grid-col.weekend.svelte-1nxjg1q.svelte-1nxjg1q{background:rgba(0, 0, 0, 0.02)}.gantt-bar.svelte-1nxjg1q.svelte-1nxjg1q{position:absolute;top:6px;height:24px;border-radius:4px;color:#ffffff;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:space-between;padding:0 4px;cursor:grab;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform 0.05s ease, box-shadow 0.1s ease;z-index:5}.gantt-bar.svelte-1nxjg1q.svelte-1nxjg1q:hover{box-shadow:0 2px 6px rgba(0,0,0,0.3);filter:brightness(1.05)}.gantt-bar.svelte-1nxjg1q.svelte-1nxjg1q:active{cursor:grabbing}.bar-title.svelte-1nxjg1q.svelte-1nxjg1q{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}.drag-handle.svelte-1nxjg1q.svelte-1nxjg1q{width:6px;height:100%;cursor:ew-resize;background:rgba(255, 255, 255, 0.35);border-radius:2px}.drag-handle.svelte-1nxjg1q.svelte-1nxjg1q:hover{background:rgba(255, 255, 255, 0.8)}");
 }
-function get_each_context2(ctx, list, i) {
+function get_each_context3(ctx, list, i) {
   const child_ctx = ctx.slice();
   child_ctx[28] = list[i];
   return child_ctx;
@@ -2227,7 +3073,7 @@ function create_each_block_12(ctx) {
     }
   };
 }
-function create_each_block2(ctx) {
+function create_each_block3(ctx) {
   let div2;
   let div0;
   let t0;
@@ -2351,7 +3197,7 @@ function create_each_block2(ctx) {
     }
   };
 }
-function create_fragment2(ctx) {
+function create_fragment3(ctx) {
   let div9;
   let div2;
   let div0;
@@ -2398,7 +3244,7 @@ function create_fragment2(ctx) {
   );
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
-    each_blocks[i] = create_each_block2(get_each_context2(ctx, each_value, i));
+    each_blocks[i] = create_each_block3(get_each_context3(ctx, each_value, i));
   }
   return {
     c() {
@@ -2628,11 +3474,11 @@ function create_fragment2(ctx) {
         );
         let i;
         for (i = 0; i < each_value.length; i += 1) {
-          const child_ctx = get_each_context2(ctx2, each_value, i);
+          const child_ctx = get_each_context3(ctx2, each_value, i);
           if (each_blocks[i]) {
             each_blocks[i].p(child_ctx, dirty);
           } else {
-            each_blocks[i] = create_each_block2(child_ctx);
+            each_blocks[i] = create_each_block3(child_ctx);
             each_blocks[i].c();
             each_blocks[i].m(div6, null);
           }
@@ -2670,7 +3516,7 @@ function isWeekend(d) {
   const day = d.getDay();
   return day === 0 || day === 6;
 }
-function instance2($$self, $$props, $$invalidate) {
+function instance3($$self, $$props, $$invalidate) {
   let { projects = [] } = $$props;
   let { onUpdateTask = () => {
   } } = $$props;
@@ -2835,15 +3681,15 @@ var GanttChart = class extends SvelteComponent {
     init(
       this,
       options,
-      instance2,
-      create_fragment2,
+      instance3,
+      create_fragment3,
       safe_not_equal,
       {
         projects: 0,
         onUpdateTask: 12,
         onSelectTask: 1
       },
-      add_css2,
+      add_css3,
       [-1, -1]
     );
   }
@@ -2851,10 +3697,10 @@ var GanttChart = class extends SvelteComponent {
 var GanttChart_default = GanttChart;
 
 // src/ui/components/MermaidModal.svelte
-function add_css3(target) {
+function add_css4(target) {
   append_styles(target, "svelte-19f8rxl", ".matrix-modal-backdrop.svelte-19f8rxl{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0, 0, 0, 0.55);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:1000}.matrix-modal-card.svelte-19f8rxl{background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:8px;width:620px;max-width:90vw;box-shadow:0 12px 28px rgba(0, 0, 0, 0.3);padding:20px;display:flex;flex-direction:column;gap:12px}.modal-header.svelte-19f8rxl{display:flex;align-items:center;justify-content:space-between}.modal-title.svelte-19f8rxl{font-size:16px;font-weight:600;color:var(--text-normal)}.modal-close-btn.svelte-19f8rxl{background:none;border:none;font-size:16px;color:var(--text-muted);cursor:pointer;padding:4px 8px;border-radius:4px}.modal-close-btn.svelte-19f8rxl:hover{color:var(--text-normal);background:var(--background-modifier-hover)}.modal-desc.svelte-19f8rxl{font-size:12.5px;color:var(--text-muted)}.code-preview-wrap.svelte-19f8rxl{background:var(--background-secondary);border:1px solid var(--background-modifier-border);border-radius:6px;max-height:320px;overflow-y:auto;padding:12px}pre.svelte-19f8rxl{margin:0;font-family:var(--font-monospace);font-size:12px;line-height:1.5;color:var(--text-normal)}.modal-actions.svelte-19f8rxl{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}.copy-btn.svelte-19f8rxl{background:var(--interactive-accent);color:var(--text-on-accent);border:none;padding:6px 16px;border-radius:5px;font-weight:500;cursor:pointer;font-size:13px}.copy-btn.svelte-19f8rxl:hover{filter:brightness(1.1)}.close-btn.svelte-19f8rxl{background:var(--background-secondary);border:1px solid var(--background-modifier-border);color:var(--text-normal);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px}.close-btn.svelte-19f8rxl:hover{background:var(--background-modifier-hover)}");
 }
-function create_fragment3(ctx) {
+function create_fragment4(ctx) {
   let div6;
   let div5;
   let div1;
@@ -3003,7 +3849,7 @@ function create_fragment3(ctx) {
     }
   };
 }
-function instance3($$self, $$props, $$invalidate) {
+function instance4($$self, $$props, $$invalidate) {
   let { mermaidCode = "" } = $$props;
   let { onClose = () => {
   } } = $$props;
@@ -3036,13 +3882,13 @@ ${mermaidCode}
 var MermaidModal = class extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance3, create_fragment3, safe_not_equal, { mermaidCode: 0, onClose: 1, onCopy: 4 }, add_css3);
+    init(this, options, instance4, create_fragment4, safe_not_equal, { mermaidCode: 0, onClose: 1, onCopy: 4 }, add_css4);
   }
 };
 var MermaidModal_default = MermaidModal;
 
 // src/ui/MatrixApp.svelte
-function add_css4(target) {
+function add_css5(target) {
   append_styles(target, "svelte-117f2tb", ".matrix-app-container.svelte-117f2tb.svelte-117f2tb{display:flex;flex-direction:column;width:100%;height:100%;background:var(--background-primary);overflow:hidden;font-family:var(--font-interface)}.matrix-topbar.svelte-117f2tb.svelte-117f2tb{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--background-secondary);border-bottom:1px solid var(--background-modifier-border);flex-shrink:0}.topbar-left.svelte-117f2tb.svelte-117f2tb{display:flex;align-items:center;gap:16px}.app-logo.svelte-117f2tb.svelte-117f2tb{display:flex;align-items:center;gap:6px}.logo-icon.svelte-117f2tb.svelte-117f2tb{font-size:16px}.logo-title.svelte-117f2tb.svelte-117f2tb{font-weight:700;font-size:14.5px;letter-spacing:-0.01em;color:var(--text-normal)}.search-box.svelte-117f2tb.svelte-117f2tb{display:flex;align-items:center;background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:6px;padding:3px 8px;width:220px;gap:6px}.search-icon.svelte-117f2tb.svelte-117f2tb{font-size:12px;color:var(--text-muted)}.search-box.svelte-117f2tb input.svelte-117f2tb{border:none;background:transparent;outline:none;font-size:12px;color:var(--text-normal);width:100%}.clear-search-btn.svelte-117f2tb.svelte-117f2tb{border:none;background:none;color:var(--text-muted);font-size:11px;cursor:pointer;padding:0}.topbar-right.svelte-117f2tb.svelte-117f2tb{display:flex;align-items:center;gap:10px}.view-switcher.svelte-117f2tb.svelte-117f2tb{display:flex;background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:6px;padding:2px}.switch-btn.svelte-117f2tb.svelte-117f2tb{border:none;background:none;font-size:12px;padding:3px 10px;border-radius:4px;color:var(--text-muted);cursor:pointer;transition:all 0.15s ease}.switch-btn.active.svelte-117f2tb.svelte-117f2tb{background:var(--interactive-accent);color:var(--text-on-accent);font-weight:500}.icon-action-btn.svelte-117f2tb.svelte-117f2tb{background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:13px;transition:all 0.2s ease}.icon-action-btn.svelte-117f2tb.svelte-117f2tb:hover{background:var(--background-modifier-hover)}.spinning.svelte-117f2tb.svelte-117f2tb{animation:svelte-117f2tb-spin 1s linear infinite}@keyframes svelte-117f2tb-spin{100%{transform:rotate(360deg)}}.primary-action-btn.svelte-117f2tb.svelte-117f2tb{background:var(--interactive-accent);color:var(--text-on-accent);border:none;border-radius:6px;padding:5px 12px;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;transition:filter 0.15s ease}.primary-action-btn.svelte-117f2tb.svelte-117f2tb:hover{filter:brightness(1.1)}.matrix-main-body.svelte-117f2tb.svelte-117f2tb{flex:1;display:flex;overflow:hidden;position:relative}.pane.svelte-117f2tb.svelte-117f2tb{display:flex;flex-direction:column;overflow:hidden}.pane-header.svelte-117f2tb.svelte-117f2tb{padding:6px 14px;font-size:11.5px;font-weight:600;color:var(--text-muted);background:var(--background-secondary-alt);border-bottom:1px solid var(--background-modifier-border)}.pane-content.svelte-117f2tb.svelte-117f2tb{flex:1;overflow:hidden}.pane-table.svelte-117f2tb.svelte-117f2tb{flex:1;min-width:320px}.pane-gantt.svelte-117f2tb.svelte-117f2tb{flex:1.2;min-width:400px}.pane-divider.svelte-117f2tb.svelte-117f2tb{width:1px;background:var(--background-modifier-border)}.pane-full.svelte-117f2tb.svelte-117f2tb{width:100%;height:100%}");
 }
 function create_if_block_4(ctx) {
@@ -3129,7 +3975,7 @@ function create_if_block_3(ctx) {
     }
   };
 }
-function create_if_block_2(ctx) {
+function create_if_block_22(ctx) {
   let div;
   let visualtable;
   let current;
@@ -3361,7 +4207,7 @@ function create_if_block3(ctx) {
     }
   };
 }
-function create_fragment4(ctx) {
+function create_fragment5(ctx) {
   let div5;
   let header;
   let div2;
@@ -3397,7 +4243,7 @@ function create_fragment4(ctx) {
     /*searchQuery*/
     ctx[1] && create_if_block_4(ctx)
   );
-  const if_block_creators = [create_if_block_12, create_if_block_2, create_if_block_3];
+  const if_block_creators = [create_if_block_12, create_if_block_22, create_if_block_3];
   const if_blocks = [];
   function select_block_type(ctx2, dirty) {
     if (
@@ -3732,7 +4578,7 @@ function handleSelectTask(task) {
 }
 var func_1 = () => {
 };
-function instance4($$self, $$props, $$invalidate) {
+function instance5($$self, $$props, $$invalidate) {
   let filteredProjects;
   var __awaiter = this && this.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
@@ -3861,8 +4707,8 @@ var MatrixApp = class extends SvelteComponent {
     init(
       this,
       options,
-      instance4,
-      create_fragment4,
+      instance5,
+      create_fragment5,
       safe_not_equal,
       {
         store: 10,
@@ -3871,7 +4717,7 @@ var MatrixApp = class extends SvelteComponent {
         onOpenNote: 0,
         onScanVault: 13
       },
-      add_css4
+      add_css5
     );
   }
 };
@@ -4156,8 +5002,72 @@ function createMatrixStore(initialProjects = []) {
   return new MatrixStore(initialProjects);
 }
 
+// src/ui/DateRangeModal.ts
+var import_obsidian2 = require("obsidian");
+var DateRangeModal = class extends import_obsidian2.Modal {
+  constructor(app, editor) {
+    super(app);
+    this.component = null;
+    this.initialStart = "";
+    this.initialEnd = "";
+    this.lineIndex = 0;
+    this.editor = editor;
+  }
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.empty();
+    this.titleEl.setText("\u{1F4C5} \u8BBE\u7F6E\u4EFB\u52A1\u6392\u671F\u533A\u95F4");
+    const cursor = this.editor.getCursor();
+    this.lineIndex = cursor.line;
+    const currentLine = this.editor.getLine(this.lineIndex);
+    const match = currentLine.match(/(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/);
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    if (match) {
+      this.initialStart = match[1];
+      this.initialEnd = match[2];
+    } else {
+      this.initialStart = today;
+      this.initialEnd = today;
+    }
+    this.component = new DateRangePicker_default({
+      target: contentEl,
+      props: {
+        startDate: this.initialStart,
+        endDate: this.initialEnd,
+        onConfirm: (start, end) => {
+          this.applyDateToLine(start, end);
+          this.close();
+        },
+        onCancel: () => {
+          this.close();
+        }
+      }
+    });
+  }
+  applyDateToLine(start, end) {
+    let line = this.editor.getLine(this.lineIndex);
+    const dateRangeStr = `${start} ~ ${end}`;
+    if (/(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/.test(line)) {
+      line = line.replace(/(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/, dateRangeStr);
+    } else {
+      if (!/^\s*[-*]\s*\[[ xX\/>\-\?]?\]/.test(line)) {
+        line = `- [ ] ${line.trim()} ${dateRangeStr}`;
+      } else {
+        line = `${line.trimEnd()} ${dateRangeStr}`;
+      }
+    }
+    this.editor.setLine(this.lineIndex, line);
+  }
+  onClose() {
+    if (this.component) {
+      this.component.$destroy();
+      this.component = null;
+    }
+  }
+};
+
 // src/main.ts
-var MermaidMatrixPlugin = class extends import_obsidian2.Plugin {
+var MermaidMatrixPlugin = class extends import_obsidian3.Plugin {
   constructor() {
     super(...arguments);
     this.settings = DEFAULT_SETTINGS;
@@ -4180,19 +5090,35 @@ var MermaidMatrixPlugin = class extends import_obsidian2.Plugin {
       }
     });
     this.addCommand({
+      id: "pick-task-date-range",
+      name: "\u5F39\u51FA\u65E5\u5386\u9762\u677F\u8BBE\u7F6E\u5F53\u524D\u884C\u6392\u671F\u65E5\u671F (Date Picker)",
+      editorCallback: (editor) => {
+        new DateRangeModal(this.app, editor).open();
+      }
+    });
+    this.registerEvent(
+      this.app.workspace.on("editor-menu", (menu, editor) => {
+        menu.addItem((item) => {
+          item.setTitle("\u{1F4C5} \u8BBE\u7F6E/\u4FEE\u6539\u6392\u671F\u65E5\u671F (MermaidMatrix)").setIcon("calendar").onClick(() => {
+            new DateRangeModal(this.app, editor).open();
+          });
+        });
+      })
+    );
+    this.addCommand({
       id: "export-all-mermaid-gantt",
       name: "\u5BFC\u51FA\u5F53\u524D\u9879\u76EE\u7518\u7279\u56FE\u4E3A Mermaid \u4EE3\u7801",
       callback: () => {
         const projects = this.store.getProjects();
         if (projects.length === 0) {
-          new import_obsidian2.Notice("\u5F53\u524D\u6CA1\u6709\u68C0\u6D4B\u5230\u6709\u6548\u7684\u9879\u76EE\u6216\u4EFB\u52A1");
+          new import_obsidian3.Notice("\u5F53\u524D\u6CA1\u6709\u68C0\u6D4B\u5230\u6709\u6548\u7684\u9879\u76EE\u6216\u4EFB\u52A1");
           return;
         }
         const mermaid = projectsToMermaidGantt(projects);
         navigator.clipboard.writeText(`\`\`\`mermaid
 ${mermaid}
 \`\`\``);
-        new import_obsidian2.Notice("\u{1F9DC}\u200D\u2640\uFE0F \u5DF2\u6210\u529F\u590D\u5236\u6807\u51C6 Mermaid Gantt \u4EE3\u7801\u5230\u526A\u8D34\u677F\uFF01");
+        new import_obsidian3.Notice("\u{1F9DC}\u200D\u2640\uFE0F \u5DF2\u6210\u529F\u590D\u5236\u6807\u51C6 Mermaid Gantt \u4EE3\u7801\u5230\u526A\u8D34\u677F\uFF01");
       }
     });
     this.addSettingTab(new MermaidMatrixSettingTab(this.app, this));
@@ -4249,7 +5175,7 @@ ${mermaid}
     await this.saveData(this.settings);
   }
 };
-var MermaidMatrixSettingTab = class extends import_obsidian2.PluginSettingTab {
+var MermaidMatrixSettingTab = class extends import_obsidian3.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -4258,13 +5184,13 @@ var MermaidMatrixSettingTab = class extends import_obsidian2.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "MermaidMatrix \u8BBE\u7F6E" });
-    new import_obsidian2.Setting(containerEl).setName("\u76EE\u6807\u626B\u63CF\u6587\u4EF6\u5939").setDesc("\u4EC5\u626B\u63CF\u8BE5\u6587\u4EF6\u5939\u4E0B\u7684 Markdown \u9879\u76EE\u7B14\u8BB0\uFF08\u7559\u7A7A\u5219\u626B\u63CF\u6574\u4E2A Vault \u4ED3\u5E93\uFF09").addText(
+    new import_obsidian3.Setting(containerEl).setName("\u76EE\u6807\u626B\u63CF\u6587\u4EF6\u5939").setDesc("\u4EC5\u626B\u63CF\u8BE5\u6587\u4EF6\u5939\u4E0B\u7684 Markdown \u9879\u76EE\u7B14\u8BB0\uFF08\u7559\u7A7A\u5219\u626B\u63CF\u6574\u4E2A Vault \u4ED3\u5E93\uFF09").addText(
       (text2) => text2.setPlaceholder("\u5982\uFF1AQGIS\u63D2\u4EF6\u5F00\u53D1").setValue(this.plugin.settings.scanFolder).onChange(async (value) => {
         this.plugin.settings.scanFolder = value;
         await this.plugin.saveSettings();
       })
     );
-    new import_obsidian2.Setting(containerEl).setName("\u9ED8\u8BA4\u89C6\u56FE\u5E03\u5C40").setDesc("\u6253\u5F00\u5927\u76D8\u65F6\u9ED8\u8BA4\u5C55\u793A\u7684\u89C6\u56FE\u98CE\u683C").addDropdown(
+    new import_obsidian3.Setting(containerEl).setName("\u9ED8\u8BA4\u89C6\u56FE\u5E03\u5C40").setDesc("\u6253\u5F00\u5927\u76D8\u65F6\u9ED8\u8BA4\u5C55\u793A\u7684\u89C6\u56FE\u98CE\u683C").addDropdown(
       (dropdown) => dropdown.addOption("split", "\u7EFC\u5408\u5927\u76D8 (\u8868\u683C + \u7518\u7279\u56FE)").addOption("table", "\u7EAF\u8868\u683C\u76D1\u63A7").addOption("gantt", "\u7EAF\u6CF3\u9053\u7518\u7279\u56FE").setValue(this.plugin.settings.defaultView).onChange(async (value) => {
         this.plugin.settings.defaultView = value;
         await this.plugin.saveSettings();

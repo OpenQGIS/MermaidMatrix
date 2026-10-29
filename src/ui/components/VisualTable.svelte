@@ -1,5 +1,6 @@
 <script lang="ts">
   import { TaskItem, ProjectData, TaskStatus } from "../../types";
+  import DateRangePicker from "./DateRangePicker.svelte";
 
   export let projects: ProjectData[] = [];
   export let onUpdateTask: (task: TaskItem) => void = () => {};
@@ -7,6 +8,7 @@
   export let onSelectTask: (task: TaskItem) => void = () => {};
 
   let collapsedProjects: Record<string, boolean> = {};
+  let activeDatePickerTaskId: string | null = null;
 
   function toggleCollapse(projectId: string) {
     collapsedProjects[projectId] = !collapsedProjects[projectId];
@@ -21,18 +23,17 @@
     onUpdateTask(updated);
   }
 
-  function handleStartDateChange(task: TaskItem, e: Event) {
-    const target = e.target as HTMLInputElement;
-    if (target.value) {
-      onUpdateTask({ ...task, startDate: target.value });
+  function toggleDatePicker(taskId: string) {
+    if (activeDatePickerTaskId === taskId) {
+      activeDatePickerTaskId = null;
+    } else {
+      activeDatePickerTaskId = taskId;
     }
   }
 
-  function handleEndDateChange(task: TaskItem, e: Event) {
-    const target = e.target as HTMLInputElement;
-    if (target.value) {
-      onUpdateTask({ ...task, endDate: target.value });
-    }
+  function handleDateConfirm(task: TaskItem, start: string, end: string) {
+    onUpdateTask({ ...task, startDate: start, endDate: end });
+    activeDatePickerTaskId = null;
   }
 </script>
 
@@ -48,7 +49,7 @@
       <div class="table-header">
         <div class="col-title">任务名称 / 项目</div>
         <div class="col-status">状态</div>
-        <div class="col-dates">排期区间</div>
+        <div class="col-dates">排期区间 (点击选择)</div>
         <div class="col-progress">进度</div>
         <div class="col-actions">操作</div>
       </div>
@@ -69,6 +70,7 @@
                 </div>
                 <span class="progress-text">{project.progress}%</span>
                 <button
+                  type="button"
                   class="action-btn"
                   title="在 Obsidian 中打开该项目笔记"
                   on:click|stopPropagation={() => onOpenNote(project.filePath)}
@@ -104,20 +106,30 @@
                     </select>
                   </div>
 
+                  <!-- Date Range Picker Trigger -->
                   <div class="col-dates" on:click|stopPropagation>
-                    <input
-                      type="date"
-                      class="date-input"
-                      value={task.startDate}
-                      on:change={(e) => handleStartDateChange(task, e)}
-                    />
-                    <span class="date-sep">~</span>
-                    <input
-                      type="date"
-                      class="date-input"
-                      value={task.endDate}
-                      on:change={(e) => handleEndDateChange(task, e)}
-                    />
+                    <button
+                      type="button"
+                      class="date-pill-btn"
+                      on:click={() => toggleDatePicker(task.id)}
+                      title="点击弹出日历面板选择日期区间"
+                    >
+                      <span class="cal-icon">📅</span>
+                      <span class="date-text">{task.startDate} ~ {task.endDate}</span>
+                      <span class="arrow-icon">▾</span>
+                    </button>
+
+                    <!-- Popover Date Picker Panel -->
+                    {#if activeDatePickerTaskId === task.id}
+                      <div class="datepicker-popover">
+                        <DateRangePicker
+                          startDate={task.startDate}
+                          endDate={task.endDate}
+                          onConfirm={(s, e) => handleDateConfirm(task, s, e)}
+                          onCancel={() => activeDatePickerTaskId = null}
+                        />
+                      </div>
+                    {/if}
                   </div>
 
                   <div class="col-progress">
@@ -129,6 +141,7 @@
 
                   <div class="col-actions">
                     <button
+                      type="button"
                       class="jump-note-btn"
                       title="直达笔记对应待办行"
                       on:click|stopPropagation={() => onOpenNote(task.filePath || project.filePath, task.lineIndex)}
@@ -154,6 +167,7 @@
     font-size: 13px;
     color: var(--text-normal);
     background-color: var(--background-primary);
+    position: relative;
   }
 
   .matrix-empty-state {
@@ -208,7 +222,7 @@
 
   .col-title { flex: 2; min-width: 180px; }
   .col-status { width: 130px; }
-  .col-dates { width: 220px; }
+  .col-dates { width: 230px; position: relative; }
   .col-progress { width: 120px; display: flex; align-items: center; gap: 8px; }
   .col-actions { width: 50px; text-align: center; }
 
@@ -334,19 +348,40 @@
     border-color: rgba(239, 68, 68, 0.3);
   }
 
-  .date-input {
+  .date-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
-    color: var(--text-normal);
+    border-radius: 6px;
+    padding: 3px 8px;
+    cursor: pointer;
     font-size: 11.5px;
-    padding: 2px 4px;
-    border-radius: 4px;
-    outline: none;
+    color: var(--text-normal);
+    transition: all 0.15s ease;
   }
-  .date-sep {
+  .date-pill-btn:hover {
+    background: var(--background-modifier-hover);
+    border-color: var(--interactive-accent);
+  }
+  .cal-icon {
+    font-size: 11px;
+    opacity: 0.8;
+  }
+  .date-text {
+    font-family: var(--font-monospace);
+  }
+  .arrow-icon {
+    font-size: 9px;
     color: var(--text-muted);
-    margin: 0 4px;
-    font-size: 12px;
+  }
+
+  .datepicker-popover {
+    position: absolute;
+    top: 32px;
+    left: 0;
+    z-index: 100;
   }
 
   .task-progress-wrap {

@@ -1,8 +1,9 @@
-import { Plugin, WorkspaceLeaf, PluginSettingTab, App, Setting, Notice } from "obsidian";
+import { Plugin, WorkspaceLeaf, PluginSettingTab, App, Setting, Notice, Editor, MarkdownView } from "obsidian";
 import { MatrixView, MERMAID_MATRIX_VIEW_TYPE } from "./ui/MatrixView";
 import { MatrixStore, createMatrixStore } from "./core/store";
 import { MermaidMatrixSettings, DEFAULT_SETTINGS } from "./types";
 import { projectsToMermaidGantt } from "./core/mermaid-converter";
+import { DateRangeModal } from "./ui/DateRangeModal";
 
 export default class MermaidMatrixPlugin extends Plugin {
   settings: MermaidMatrixSettings = DEFAULT_SETTINGS;
@@ -22,7 +23,7 @@ export default class MermaidMatrixPlugin extends Plugin {
       this.activateView();
     });
 
-    // Command Palette Commands
+    // Command: Open Dashboard
     this.addCommand({
       id: "open-mermaid-matrix-dashboard",
       name: "打开项目中台大盘 (Dashboard)",
@@ -31,6 +32,30 @@ export default class MermaidMatrixPlugin extends Plugin {
       }
     });
 
+    // Command: Date Range Picker for Current Line in Editor
+    this.addCommand({
+      id: "pick-task-date-range",
+      name: "弹出日历面板设置当前行排期日期 (Date Picker)",
+      editorCallback: (editor: Editor) => {
+        new DateRangeModal(this.app, editor).open();
+      }
+    });
+
+    // Editor Context Menu: Right-click to pick date
+    this.registerEvent(
+      this.app.workspace.on("editor-menu", (menu, editor: Editor) => {
+        menu.addItem((item) => {
+          item
+            .setTitle("📅 设置/修改排期日期 (MermaidMatrix)")
+            .setIcon("calendar")
+            .onClick(() => {
+              new DateRangeModal(this.app, editor).open();
+            });
+        });
+      })
+    );
+
+    // Command: Export Mermaid Gantt
     this.addCommand({
       id: "export-all-mermaid-gantt",
       name: "导出当前项目甘特图为 Mermaid 代码",
@@ -68,7 +93,6 @@ export default class MermaidMatrixPlugin extends Plugin {
   }
 
   async onunload(): Promise<void> {
-    // Detach all leaves of our view type on plugin unload
     this.app.workspace.detachLeavesOfType(MERMAID_MATRIX_VIEW_TYPE);
   }
 
