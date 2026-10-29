@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf, PluginSettingTab, App, Setting, Notice, Editor, MarkdownView } from "obsidian";
+import { Plugin, WorkspaceLeaf, PluginSettingTab, App, Setting, Notice, Editor, TFile } from "obsidian";
 import { MatrixView, MERMAID_MATRIX_VIEW_TYPE } from "./ui/MatrixView";
 import { MatrixStore, createMatrixStore } from "./core/store";
 import { MermaidMatrixSettings, DEFAULT_SETTINGS } from "./types";
@@ -55,6 +55,51 @@ export default class MermaidMatrixPlugin extends Plugin {
       })
     );
 
+    // Markdown Post Processor: Turn date ranges in notes into interactive clickable pills
+    this.registerMarkdownPostProcessor((element, context) => {
+      const dateRegex = /(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      const textNodes: Text[] = [];
+
+      while (walker.nextNode()) {
+        textNodes.push(walker.currentNode as Text);
+      }
+
+      for (const node of textNodes) {
+        const text = node.nodeValue || "";
+        const match = text.match(dateRegex);
+        if (match && node.parentElement) {
+          if (node.parentElement.closest("pre, code, .matrix-date-pill-inline")) {
+            continue;
+          }
+
+          const [fullMatch, start, end] = match;
+          const index = text.indexOf(fullMatch);
+          const beforeText = text.substring(0, index);
+          const afterText = text.substring(index + fullMatch.length);
+
+          const parent = node.parentElement;
+          const span = document.createElement("span");
+          span.className = "matrix-date-pill-inline";
+          span.innerHTML = `<span class="pill-cal">📅</span> ${start} ~ ${end} <span class="pill-arrow">▾</span>`;
+          span.title = "点击弹出日历修改排期日期";
+
+          span.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.openDatePickerForFile(context.sourcePath, fullMatch, start, end);
+          });
+
+          const frag = document.createDocumentFragment();
+          if (beforeText) frag.appendChild(document.createTextNode(beforeText));
+          frag.appendChild(span);
+          if (afterText) frag.appendChild(document.createTextNode(afterText));
+
+          parent.replaceChild(frag, node);
+        }
+      }
+    });
+
     // Command: Export Mermaid Gantt
     this.addCommand({
       id: "export-all-mermaid-gantt",
@@ -90,6 +135,26 @@ export default class MermaidMatrixPlugin extends Plugin {
         this.refreshActiveViews();
       })
     );
+  }
+
+  private openDatePickerForFile(filePath: string, oldDateStr: string, currentStart: string, currentEnd: string) {
+    const file = this.app.vault.getAbstractFileByPath(filePath);
+    if (!(file instanceof TFile)) return;
+
+    const modal = new DateRangeModal(this.app, {
+      start: currentStart,
+      end: currentEnd,
+      onConfirm: async (newStart, newEnd) => {
+        const newDateStr = `${newStart} ~ ${newEnd}`;
+        const content = await this.app.vault.read(file);
+        const updated = content.replace(oldDateStr, newDateStr);
+        if (updated !== content) {
+          await this.app.vault.modify(file, updated);
+          new Notice(`已更新排期: ${newDateStr}`);
+        }
+      }
+    });
+    modal.open();
   }
 
   async onunload(): Promise<void> {

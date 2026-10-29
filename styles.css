@@ -12,6 +12,42 @@
   box-sizing: border-box;
 }
 
+/* In-note interactive date pill */
+.matrix-date-pill-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--background-secondary-alt);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-accent);
+  padding: 1px 7px;
+  border-radius: 12px;
+  font-size: 0.82em;
+  font-family: var(--font-monospace);
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  transition: all 0.15s ease;
+  margin-left: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.matrix-date-pill-inline:hover {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent) !important;
+  border-color: var(--interactive-accent);
+  transform: translateY(-1px);
+}
+
+.matrix-date-pill-inline .pill-cal {
+  font-size: 11px;
+}
+
+.matrix-date-pill-inline .pill-arrow {
+  font-size: 9px;
+  opacity: 0.7;
+}
+
 .matrix-status-pill {
   display: inline-flex;
   align-items: center;

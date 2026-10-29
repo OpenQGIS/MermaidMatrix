@@ -5005,37 +5005,49 @@ function createMatrixStore(initialProjects = []) {
 // src/ui/DateRangeModal.ts
 var import_obsidian2 = require("obsidian");
 var DateRangeModal = class extends import_obsidian2.Modal {
-  constructor(app, editor) {
+  constructor(app, target) {
     super(app);
     this.component = null;
     this.initialStart = "";
     this.initialEnd = "";
+    this.onConfirmCallback = null;
+    this.editor = null;
     this.lineIndex = 0;
-    this.editor = editor;
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    if ("getCursor" in target) {
+      this.editor = target;
+      const cursor = this.editor.getCursor();
+      this.lineIndex = cursor.line;
+      const currentLine = this.editor.getLine(this.lineIndex);
+      const match = currentLine.match(/(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/);
+      if (match) {
+        this.initialStart = match[1];
+        this.initialEnd = match[2];
+      } else {
+        this.initialStart = today;
+        this.initialEnd = today;
+      }
+    } else {
+      this.initialStart = target.start || today;
+      this.initialEnd = target.end || today;
+      this.onConfirmCallback = target.onConfirm;
+    }
   }
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
     this.titleEl.setText("\u{1F4C5} \u8BBE\u7F6E\u4EFB\u52A1\u6392\u671F\u533A\u95F4");
-    const cursor = this.editor.getCursor();
-    this.lineIndex = cursor.line;
-    const currentLine = this.editor.getLine(this.lineIndex);
-    const match = currentLine.match(/(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/);
-    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    if (match) {
-      this.initialStart = match[1];
-      this.initialEnd = match[2];
-    } else {
-      this.initialStart = today;
-      this.initialEnd = today;
-    }
     this.component = new DateRangePicker_default({
       target: contentEl,
       props: {
         startDate: this.initialStart,
         endDate: this.initialEnd,
         onConfirm: (start, end) => {
-          this.applyDateToLine(start, end);
+          if (this.onConfirmCallback) {
+            this.onConfirmCallback(start, end);
+          } else if (this.editor) {
+            this.applyDateToLine(start, end);
+          }
           this.close();
         },
         onCancel: () => {
@@ -5045,6 +5057,7 @@ var DateRangeModal = class extends import_obsidian2.Modal {
     });
   }
   applyDateToLine(start, end) {
+    if (!this.editor) return;
     let line = this.editor.getLine(this.lineIndex);
     const dateRangeStr = `${start} ~ ${end}`;
     if (/(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/.test(line)) {
@@ -5105,6 +5118,42 @@ var MermaidMatrixPlugin = class extends import_obsidian3.Plugin {
         });
       })
     );
+    this.registerMarkdownPostProcessor((element2, context) => {
+      const dateRegex = /(\d{4}-\d{2}-\d{2})\s*(?:~|至|to)\s*(\d{4}-\d{2}-\d{2})/;
+      const walker = document.createTreeWalker(element2, NodeFilter.SHOW_TEXT);
+      const textNodes = [];
+      while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+      }
+      for (const node of textNodes) {
+        const text2 = node.nodeValue || "";
+        const match = text2.match(dateRegex);
+        if (match && node.parentElement) {
+          if (node.parentElement.closest("pre, code, .matrix-date-pill-inline")) {
+            continue;
+          }
+          const [fullMatch, start, end] = match;
+          const index = text2.indexOf(fullMatch);
+          const beforeText = text2.substring(0, index);
+          const afterText = text2.substring(index + fullMatch.length);
+          const parent = node.parentElement;
+          const span = document.createElement("span");
+          span.className = "matrix-date-pill-inline";
+          span.innerHTML = `<span class="pill-cal">\u{1F4C5}</span> ${start} ~ ${end} <span class="pill-arrow">\u25BE</span>`;
+          span.title = "\u70B9\u51FB\u5F39\u51FA\u65E5\u5386\u4FEE\u6539\u6392\u671F\u65E5\u671F";
+          span.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.openDatePickerForFile(context.sourcePath, fullMatch, start, end);
+          });
+          const frag = document.createDocumentFragment();
+          if (beforeText) frag.appendChild(document.createTextNode(beforeText));
+          frag.appendChild(span);
+          if (afterText) frag.appendChild(document.createTextNode(afterText));
+          parent.replaceChild(frag, node);
+        }
+      }
+    });
     this.addCommand({
       id: "export-all-mermaid-gantt",
       name: "\u5BFC\u51FA\u5F53\u524D\u9879\u76EE\u7518\u7279\u56FE\u4E3A Mermaid \u4EE3\u7801",
@@ -5137,6 +5186,24 @@ ${mermaid}
         this.refreshActiveViews();
       })
     );
+  }
+  openDatePickerForFile(filePath, oldDateStr, currentStart, currentEnd) {
+    const file = this.app.vault.getAbstractFileByPath(filePath);
+    if (!(file instanceof import_obsidian3.TFile)) return;
+    const modal = new DateRangeModal(this.app, {
+      start: currentStart,
+      end: currentEnd,
+      onConfirm: async (newStart, newEnd) => {
+        const newDateStr = `${newStart} ~ ${newEnd}`;
+        const content = await this.app.vault.read(file);
+        const updated = content.replace(oldDateStr, newDateStr);
+        if (updated !== content) {
+          await this.app.vault.modify(file, updated);
+          new import_obsidian3.Notice(`\u5DF2\u66F4\u65B0\u6392\u671F: ${newDateStr}`);
+        }
+      }
+    });
+    modal.open();
   }
   async onunload() {
     this.app.workspace.detachLeavesOfType(MERMAID_MATRIX_VIEW_TYPE);
